@@ -17,8 +17,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-const upload = multer({ storage });
-
 // Get Store Statistics
 router.get('/stats', requireAuth('store'), async (req, res) => {
   try {
