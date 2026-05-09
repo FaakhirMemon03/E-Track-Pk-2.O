@@ -367,7 +367,6 @@ nav {
   background: rgba(10, 18, 35, 0.8);
   border: 1px solid var(--glass-border);
   border-radius: 20px;
-  overflow: hidden;
 }
 
 .sidebar-header {
@@ -403,7 +402,6 @@ nav {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  overflow-y: auto;
 }
 
 /* Override global nav styles inside dashboard */
