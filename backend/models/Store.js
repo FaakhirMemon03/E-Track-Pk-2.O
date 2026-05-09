@@ -14,13 +14,12 @@ const storeSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Pre-save to set trial expiration if new
-storeSchema.pre('save', function(next) {
+storeSchema.pre('save', async function() {
   if (this.isNew && this.plan === 'trial') {
     const expireDate = new Date();
     expireDate.setDate(expireDate.getDate() + 14); // 14 days trial
     this.planExpiresAt = expireDate;
   }
-  next();
 });
 
 module.exports = mongoose.model('Store', storeSchema);
