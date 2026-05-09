@@ -20,6 +20,7 @@ router.post('/store/signup', async (req, res) => {
 
     res.status(201).json({ message: 'Store created successfully. 14-day trial started.' });
   } catch (error) {
+    console.error('Auth Error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -42,6 +43,7 @@ router.post('/store/login', async (req, res) => {
     const token = jwt.sign({ id: store._id, role: 'store' }, process.env.JWT_SECRET, { expiresIn: '1d' });
     res.json({ token, store: { id: store._id, name: store.name, email: store.email, plan: store.plan, planExpiresAt: store.planExpiresAt, profilePic: store.profilePic } });
   } catch (error) {
+    console.error('Auth Error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -61,6 +63,7 @@ router.post('/admin/login', async (req, res) => {
     const token = jwt.sign({ id: admin._id, role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '1d' });
     res.json({ token, admin: { id: admin._id, email: admin.email, profilePic: admin.profilePic } });
   } catch (error) {
+    console.error('Auth Error:', error);
     res.status(500).json({ error: error.message });
   }
 });
