@@ -36,7 +36,7 @@ router.get('/lookup', requireAuth('store'), async (req, res) => {
 
     res.json({ risk, reports: customers });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -54,7 +54,7 @@ router.post('/report', requireAuth('store'), async (req, res) => {
     await customer.save();
     res.status(201).json({ message: 'Customer blacklisted successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -68,7 +68,7 @@ router.post('/payment-proof', requireAuth('store'), upload.single('screenshot'),
     await req.user.save();
     res.json({ message: 'Payment proof submitted. Admin will review and activate your plan.' });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -82,7 +82,7 @@ router.put('/profile', requireAuth('store'), upload.single('profilePic'), async 
     await req.user.save();
     res.json({ message: 'Profile updated successfully', store: req.user });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
 

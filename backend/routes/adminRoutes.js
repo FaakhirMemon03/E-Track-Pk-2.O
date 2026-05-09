@@ -10,7 +10,7 @@ router.get('/stores', requireAuth('admin'), async (req, res) => {
     const stores = await Store.find().select('-password');
     res.json(stores);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -21,7 +21,7 @@ router.put('/stores/:id/status', requireAuth('admin'), async (req, res) => {
     const store = await Store.findByIdAndUpdate(req.params.id, { status }, { new: true });
     res.json({ message: `Store ${status} successfully`, store });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -40,7 +40,7 @@ router.put('/stores/:id/activate', requireAuth('admin'), async (req, res) => {
 
     res.json({ message: 'Plan activated successfully', store });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -50,7 +50,7 @@ router.get('/customers', requireAuth('admin'), async (req, res) => {
     const customers = await Customer.find().populate('reportedBy', 'name');
     res.json(customers);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -70,7 +70,7 @@ router.put('/profile', requireAuth('admin'), async (req, res) => {
     await req.user.save();
     res.json({ message: 'Admin profile updated' });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
 

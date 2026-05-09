@@ -21,7 +21,7 @@ router.get('/:storeId', requireAuth(), async (req, res) => {
 
     res.json(messages);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -39,7 +39,7 @@ router.post('/', requireAuth(), async (req, res) => {
     await message.save();
     res.status(201).json(message);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
