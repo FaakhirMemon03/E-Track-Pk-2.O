@@ -7,7 +7,7 @@ import AdminProfile from '../components/admin/AdminProfile';
 import Chat from '../components/Chat';
 
 const AdminDashboard = () => {
-  const [admin, setAdmin] = useState(JSON.parse(localStorage.getItem('admin')) || { username: 'Admin' });
+  const [admin, setAdmin] = useState(JSON.parse(localStorage.getItem('admin')) || { email: 'Admin' });
   const [currentStoreChat, setCurrentStoreChat] = useState(null);
   const navigate = useNavigate();
 
