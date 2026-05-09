@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Search, AlertTriangle, CreditCard, MessageSquare, User, LogOut, TrendingUp, ShieldAlert, Activity } from 'lucide-react';
-import CustomerLookup from '../components/store/CustomerLookup';
+import CustomerLookup from '../components/CustomerLookup';
 import BlacklistReport from '../components/BlacklistReport';
 import Subscription from '../components/Subscription';
 import Chat from '../components/Chat';
