@@ -1,53 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Search, AlertTriangle, CreditCard, MessageSquare, User, LogOut, TrendingUp, ShieldAlert, Activity } from 'lucide-react';
+import {
+  LayoutDashboard, Search, ShieldAlert, CreditCard,
+  MessageSquare, User, LogOut, TrendingUp, Activity, Shield
+} from 'lucide-react';
 import CustomerLookup from '../components/CustomerLookup';
 import BlacklistReport from '../components/BlacklistReport';
 import Subscription from '../components/Subscription';
 import Chat from '../components/Chat';
 import Profile from '../components/Profile';
 
+const navItems = [
+  { icon: <LayoutDashboard size={18} />, label: 'Overview', path: '/dashboard' },
+  { icon: <Search size={18} />, label: 'Customer Lookup', path: '/dashboard/lookup' },
+  { icon: <ShieldAlert size={18} />, label: 'Blacklist Report', path: '/dashboard/report' },
+  { icon: <CreditCard size={18} />, label: 'Subscription', path: '/dashboard/subscription' },
+  { icon: <MessageSquare size={18} />, label: 'Live Support', path: '/dashboard/support' },
+  { icon: <User size={18} />, label: 'Profile', path: '/dashboard/profile' },
+];
+
 const StoreDashboard = () => {
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || {});
+  const [user] = useState(JSON.parse(localStorage.getItem('user')) || {});
   const [stats, setStats] = useState({ totalSearches: 0, blacklistedByYou: 0, systemWideReports: 0, recentActivity: [] });
   const [timeLeft, setTimeLeft] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Timer logic
     const timer = setInterval(() => {
-      const now = new Date();
-      const expiry = new Date(user.planExpiresAt);
-      const diff = expiry - now;
-
-      if (diff <= 0) {
-        clearInterval(timer);
-        handleLogout();
-      } else {
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((diff / 1000 / 60) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
-        setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
-      }
+      const diff = new Date(user.planExpiresAt) - new Date();
+      if (diff <= 0) { clearInterval(timer); handleLogout(); return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setTimeLeft(`${d}d ${h}h ${m}m ${s}s`);
     }, 1000);
 
-    // Fetch Stats
-    const fetchStats = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:5000/api/store/stats', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        if (res.ok) setStats(data);
-      } catch (err) { console.error(err); }
-    };
+    fetch('http://localhost:5000/api/store/stats', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    }).then(r => r.json()).then(d => { if (d && !d.error) setStats(d); }).catch(() => {});
 
-    fetchStats();
     return () => clearInterval(timer);
-  }, [user]);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -55,65 +50,69 @@ const StoreDashboard = () => {
     navigate('/login');
   };
 
-  const navItems = [
-    { icon: <TrendingUp size={20} />, label: "Overview", path: "/dashboard" },
-    { icon: <Search size={20} />, label: "Customer Lookup", path: "/dashboard/lookup" },
-    { icon: <ShieldAlert size={20} />, label: "Blacklist Report", path: "/dashboard/report" },
-    { icon: <CreditCard size={20} />, label: "Subscription", path: "/dashboard/subscription" },
-    { icon: <MessageSquare size={20} />, label: "Live Support", path: "/dashboard/support" },
-    { icon: <User size={20} />, label: "Profile Settings", path: "/dashboard/profile" },
-  ];
+  const avatarSrc = user.profilePic ? `http://localhost:5000${user.profilePic}` : null;
 
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar glass">
-        <div className="sidebar-header">
-          <div className="logo-icon"><ShieldAlert size={28} /></div>
-          <span>E-Track PK</span>
+    <div className="db-shell">
+      {/* ── Sidebar ── */}
+      <aside className="db-sidebar">
+        {/* User Card */}
+        <div className="db-user-card">
+          <div className="db-avatar">
+            {avatarSrc
+              ? <img src={avatarSrc} alt="avatar" />
+              : <span>{user.name?.charAt(0).toUpperCase()}</span>}
+          </div>
+          <div className="db-user-info">
+            <p className="db-user-name">{user.name}</p>
+            <p className="db-user-email">{user.email}</p>
+          </div>
         </div>
-        
-        <nav className="sidebar-nav">
-          {navItems.map((item, i) => (
-            <Link 
-              key={i} 
-              to={item.path} 
-              className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+
+        {/* Nav */}
+        <nav className="db-nav">
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`db-nav-item ${location.pathname === item.path ? 'db-nav-active' : ''}`}
             >
-              {item.icon} <span>{item.label}</span>
+              {item.icon}
+              <span>{item.label}</span>
             </Link>
           ))}
         </nav>
 
-        <button onClick={handleLogout} className="logout-btn nav-item">
-          <LogOut size={20} /> <span>Logout</span>
+        <button onClick={handleLogout} className="db-logout">
+          <LogOut size={18} /> <span>Logout</span>
         </button>
       </aside>
 
-      {/* Main Content */}
-      <main className="main-content">
-        <header className="content-header glass">
+      {/* ── Main ── */}
+      <main className="db-main">
+        {/* Top Bar */}
+        <div className="db-topbar">
           <div>
-            <p className="welcome-text">Welcome back,</p>
-            <h2 className="user-name">{user.name}</h2>
-            <div className="plan-pill">{user.plan?.toUpperCase()} PLAN</div>
+            <h2 className="db-topbar-title">
+              {navItems.find(n => n.path === location.pathname)?.label || 'Dashboard'}
+            </h2>
+            <p className="db-topbar-sub">E-Track PK Platform</p>
           </div>
-          <div className="header-right">
-            <div className="timer-card glass">
-              <span className="timer-label">Session Expires In</span>
-              <span className="timer-value">{timeLeft}</span>
-            </div>
+          <div className="db-plan-info">
+            <span className="db-plan-badge">{user.plan?.toUpperCase()} PLAN</span>
+            <span className="db-timer">{timeLeft}</span>
           </div>
-        </header>
+        </div>
 
-        <div className="page-content">
+        {/* Page Content */}
+        <div className="db-content">
           <Routes>
-            <Route path="/" element={<HomeStats stats={stats} />} />
+            <Route path="/" element={<Overview stats={stats} />} />
             <Route path="lookup" element={<CustomerLookup />} />
             <Route path="report" element={<BlacklistReport />} />
             <Route path="subscription" element={<Subscription />} />
             <Route path="support" element={<Chat user={user} role="store" />} />
-            <Route path="profile" element={<Profile user={user} setUser={setUser} />} />
+            <Route path="profile" element={<Profile user={user} setUser={() => {}} />} />
           </Routes>
         </div>
       </main>
@@ -121,55 +120,68 @@ const StoreDashboard = () => {
   );
 };
 
-const HomeStats = ({ stats }) => (
-  <div className="stats-layout animate-fade">
-    <div className="stats-grid">
-      <div className="stat-card glass primary-glow">
-        <div className="stat-icon-wrapper"><TrendingUp size={24} /></div>
-        <div className="stat-info">
-          <p className="stat-label">Total Searches</p>
-          <h3 className="stat-number">{stats.totalSearches}</h3>
+/* ── Overview Page ── */
+const Overview = ({ stats }) => (
+  <div className="animate-fade">
+    {/* Stat Cards */}
+    <div className="db-cards">
+      <div className="db-card db-card-blue">
+        <div className="db-card-icon"><TrendingUp size={22} /></div>
+        <div>
+          <p className="db-card-label">Total Searches</p>
+          <h3 className="db-card-value">{stats.totalSearches}</h3>
         </div>
       </div>
-      <div className="stat-card glass danger-glow">
-        <div className="stat-icon-wrapper"><ShieldAlert size={24} /></div>
-        <div className="stat-info">
-          <p className="stat-label">Blacklisted by You</p>
-          <h3 className="stat-number">{stats.blacklistedByYou}</h3>
+      <div className="db-card db-card-red">
+        <div className="db-card-icon"><ShieldAlert size={22} /></div>
+        <div>
+          <p className="db-card-label">Blacklisted by You</p>
+          <h3 className="db-card-value">{stats.blacklistedByYou}</h3>
         </div>
       </div>
-      <div className="stat-card glass success-glow">
-        <div className="stat-icon-wrapper"><Activity size={24} /></div>
-        <div className="stat-info">
-          <p className="stat-label">System Wide Reports</p>
-          <h3 className="stat-number">{stats.systemWideReports}</h3>
+      <div className="db-card db-card-green">
+        <div className="db-card-icon"><Shield size={22} /></div>
+        <div>
+          <p className="db-card-label">Network Reports</p>
+          <h3 className="db-card-value">{stats.systemWideReports}</h3>
         </div>
       </div>
     </div>
 
-    <div className="activity-section glass">
-      <div className="section-header-compact">
-        <Activity size={18} className="icon-primary" />
-        <h3>Live Network Activity</h3>
+    {/* Recent Activity Table */}
+    <div className="db-section">
+      <div className="db-section-head">
+        <Activity size={18} />
+        <h3>Recent Platform Activity</h3>
       </div>
-      <div className="activity-list">
-        {stats.recentActivity.length > 0 ? stats.recentActivity.map((act, i) => (
-          <div key={i} className="activity-item">
-            <div className="activity-dot"></div>
-            <div className="activity-content">
-              <span className="store-name">{act.reportedBy?.name}</span>
-              <span className="activity-text"> reported a fraud customer </span>
-              <span className="fraud-phone">{act.phone.slice(0, 4)}XXXXXXX</span>
-              <div className="activity-reason">{act.reason}</div>
-            </div>
-            <div className="activity-time">Just now</div>
-          </div>
-        )) : (
-          <div className="empty-state">
-            <p>No recent platform activity to show.</p>
-          </div>
-        )}
-      </div>
+
+      {stats.recentActivity?.length > 0 ? (
+        <table className="db-table">
+          <thead>
+            <tr>
+              <th>Store</th>
+              <th>Phone</th>
+              <th>Reason</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stats.recentActivity.map((act, i) => (
+              <tr key={i}>
+                <td><span className="db-store-tag">{act.reportedBy?.name || 'Unknown'}</span></td>
+                <td><span className="db-phone">{act.phone?.slice(0, 4)}XXXXXXX</span></td>
+                <td>{act.reason}</td>
+                <td>{new Date(act.createdAt).toLocaleDateString('en-PK')}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <div className="db-empty">
+          <Shield size={40} />
+          <p>No recent platform activity yet.</p>
+        </div>
+      )}
     </div>
   </div>
 );
