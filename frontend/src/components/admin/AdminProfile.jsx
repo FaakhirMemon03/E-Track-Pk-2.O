@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const AdminProfile = ({ admin, setAdmin }) => {
   const [formData, setFormData] = useState({ 
-    username: admin.username, 
+    email: admin.email, 
     password: '', 
     recoveryQuestion: admin.recoveryQuestion || '', 
     recoveryAnswer: admin.recoveryAnswer || '' 
