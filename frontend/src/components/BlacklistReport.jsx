@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
+import { ShieldAlert, CheckCircle } from 'lucide-react';
 
 const BlacklistReport = () => {
   const [formData, setFormData] = useState({ phone: '', email: '', address: '', reason: '' });
   const [msg, setMsg] = useState({ text: '', type: '' });
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg({ text: '', type: '' });
+    setLoading(true);
     try {
       const token = localStorage.getItem('token');
       const res = await fetch('http://localhost:5000/api/store/report', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
@@ -19,44 +22,111 @@ const BlacklistReport = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        setMsg({ text: 'Customer blacklisted successfully. Thank you for contributing!', type: 'success' });
+        setMsg({ text: 'Customer successfully blacklisted. Thank you for protecting the community!', type: 'success' });
         setFormData({ phone: '', email: '', address: '', reason: '' });
       } else {
-        setMsg({ text: data.error || 'Failed to report', type: 'error' });
+        setMsg({ text: data.error || 'Failed to report customer', type: 'error' });
       }
     } catch (err) {
-      setMsg({ text: 'Error connecting to server', type: 'error' });
+      setMsg({ text: 'Error connecting to server. Please try again.', type: 'error' });
     }
+    setLoading(false);
   };
 
+  const reasons = [
+    'Refused Delivery',
+    'Fake Order / Address',
+    'Payment Reversal / Chargeback',
+    'Abusive / Rude Behavior',
+    'Multiple Cancellations',
+    'Other'
+  ];
+
   return (
-    <div className="glass animate-fade" style={{ padding: '40px', maxWidth: '700px' }}>
-      <h3>Blacklist a Customer</h3>
-      <p>Report a customer who refused delivery or cancelled multiple times.</p>
-
-      {msg.text && (
-        <div className={`alert alert-${msg.type}`} style={{ marginTop: '20px' }}>
-          {msg.text}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+    <div className="animate-fade page-section">
+      <div className="section-card">
+        <div className="section-title">
+          <ShieldAlert size={22} style={{ color: 'var(--danger)' }} />
           <div>
-            <label>Phone Number</label>
-            <input type="text" placeholder="03000000000" value={formData.phone} required onChange={e => setFormData({...formData, phone: e.target.value})} />
-          </div>
-          <div>
-            <label>Email Address</label>
-            <input type="email" placeholder="customer@email.com" value={formData.email} required onChange={e => setFormData({...formData, email: e.target.value})} />
+            <h3>Blacklist a Customer</h3>
+            <p>Report a fraudulent customer to warn other stores in the network.</p>
           </div>
         </div>
-        <label>Full Address</label>
-        <input type="text" placeholder="Street, City, Area" value={formData.address} required onChange={e => setFormData({...formData, address: e.target.value})} />
-        <label>Reason for Blacklisting</label>
-        <textarea placeholder="e.g. Refused delivery 3 times, Rude behavior, Fake order" value={formData.reason} required rows="4" onChange={e => setFormData({...formData, reason: e.target.value})}></textarea>
-        <button type="submit" className="btn-primary" style={{ width: '100%' }}>Report Customer</button>
-      </form>
+
+        {msg.text && (
+          <div className={`alert alert-${msg.type}`}>
+            {msg.type === 'success' ? <CheckCircle size={18} /> : <ShieldAlert size={18} />}
+            {msg.text}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="report-form">
+          <div className="form-grid-2">
+            <div className="form-group">
+              <label>Phone Number *</label>
+              <input
+                type="text"
+                placeholder="03001234567"
+                value={formData.phone}
+                required
+                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+              />
+            </div>
+            <div className="form-group">
+              <label>Email Address *</label>
+              <input
+                type="email"
+                placeholder="customer@email.com"
+                value={formData.email}
+                required
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Full Address *</label>
+            <input
+              type="text"
+              placeholder="Street, City, Area"
+              value={formData.address}
+              required
+              onChange={e => setFormData({ ...formData, address: e.target.value })}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Quick Select Reason</label>
+            <div className="reason-chips">
+              {reasons.map(r => (
+                <button
+                  type="button"
+                  key={r}
+                  className={`reason-chip ${formData.reason === r ? 'active' : ''}`}
+                  onClick={() => setFormData({ ...formData, reason: r })}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Detailed Reason *</label>
+            <textarea
+              placeholder="Describe what happened..."
+              value={formData.reason}
+              required
+              rows="4"
+              onChange={e => setFormData({ ...formData, reason: e.target.value })}
+            />
+          </div>
+
+          <button type="submit" className="btn-danger full-width" disabled={loading}>
+            {loading ? 'Reporting...' : '🚫 Report & Blacklist Customer'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
