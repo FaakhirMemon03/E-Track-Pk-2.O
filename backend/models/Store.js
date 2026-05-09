@@ -9,8 +9,8 @@ const storeSchema = new mongoose.Schema({
   plan: { type: String, enum: ['trial', '1month', '6month', '1year', 'none'], default: 'trial' },
   planExpiresAt: { type: Date },
   isVerified: { type: Boolean, default: false }, // For email verification
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
+  resetPasswordToken: { type: String },
+  resetPasswordExpire: { type: Date },
 }, { timestamps: true });
 
 // Pre-save to set trial expiration if new
