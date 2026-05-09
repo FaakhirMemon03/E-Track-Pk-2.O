@@ -43,7 +43,7 @@ const AdminDashboard = () => {
       <div style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
         <div className="glass" style={{ padding: '20px 40px', marginBottom: '40px' }}>
           <h2 style={{ textAlign: 'left', margin: 0 }}>Admin Control Panel</h2>
-          <p style={{ margin: 0 }}>Logged in as: <strong>{admin.username}</strong></p>
+          <p style={{ margin: 0 }}>Logged in as: <strong>{admin.email}</strong></p>
         </div>
 
         <Routes>

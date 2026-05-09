@@ -31,8 +31,8 @@ const AdminProfile = ({ admin, setAdmin }) => {
     <div className="glass animate-fade" style={{ padding: '40px', maxWidth: '600px' }}>
       <h3>Admin Settings</h3>
       <form onSubmit={handleUpdate}>
-        <label>Admin Username</label>
-        <input type="text" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
+        <label>Admin Email</label>
+        <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
         <label>New Password</label>
         <input type="password" placeholder="••••••••" onChange={e => setFormData({...formData, password: e.target.value})} />
         <label>Recovery Question (for forgot password)</label>
