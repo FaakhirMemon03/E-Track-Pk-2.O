@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Routes, Route, Link } from 'react-router-dom';
-import { LayoutDashboard, UserSearch, ShieldAlert, CreditCard, MessageSquare, User, LogOut } from 'lucide-react';
-import CustomerLookup from '../components/CustomerLookup';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Search, AlertTriangle, CreditCard, MessageSquare, User, LogOut, TrendingUp, ShieldAlert, Activity } from 'lucide-react';
+import CustomerLookup from '../components/store/CustomerLookup';
 import BlacklistReport from '../components/BlacklistReport';
 import Subscription from '../components/Subscription';
 import Chat from '../components/Chat';
@@ -9,11 +9,12 @@ import Profile from '../components/Profile';
 
 const StoreDashboard = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || {});
+  const [stats, setStats] = useState({ totalSearches: 0, blacklistedByYou: 0, systemWideReports: 0, recentActivity: [] });
   const [timeLeft, setTimeLeft] = useState('');
   const navigate = useNavigate();
 
-  // Timer Logic
   useEffect(() => {
+    // Timer logic
     const timer = setInterval(() => {
       const now = new Date();
       const expiry = new Date(user.planExpiresAt);
@@ -21,100 +22,130 @@ const StoreDashboard = () => {
 
       if (diff <= 0) {
         clearInterval(timer);
-        handleLogout('Your plan has expired. Please purchase a plan to continue.');
-        return;
+        handleLogout();
+      } else {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / 1000 / 60) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
       }
-
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-      setTimeLeft(`${days}d ${hours}h ${mins}m ${secs}s`);
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [user.planExpiresAt]);
+    // Fetch Stats
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('http://localhost:5000/api/store/stats', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) setStats(data);
+      } catch (err) { console.error(err); }
+    };
 
-  const handleLogout = (msg) => {
-    if (msg) alert(msg);
+    fetchStats();
+    return () => clearInterval(timer);
+  }, [user]);
+
+  const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/login');
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-dark)' }}>
+    <div className="dashboard-container">
       {/* Sidebar */}
-      <div className="glass" style={{ width: '280px', padding: '30px', margin: '20px', borderRadius: '24px', display: 'flex', flexDirection: 'column' }}>
-        <div className="logo" style={{ marginBottom: '50px' }}>E-Track PK</div>
-        <nav style={{ flex: 1, background: 'transparent', flexDirection: 'column', alignItems: 'flex-start', height: 'auto', gap: '10px' }}>
+      <aside className="sidebar glass">
+        <div className="sidebar-header">
+          <LayoutDashboard size={24} />
+          <span>E-Track PK</span>
+        </div>
+        
+        <nav className="sidebar-nav">
           {[
-            { icon: <LayoutDashboard size={20} />, label: "Dashboard", path: "" },
-            { icon: <UserSearch size={20} />, label: "Customer Lookup", path: "lookup" },
+            { icon: <TrendingUp size={20} />, label: "Dashboard", path: "" },
+            { icon: <Search size={20} />, label: "Customer Lookup", path: "lookup" },
             { icon: <ShieldAlert size={20} />, label: "Blacklist Report", path: "report" },
             { icon: <CreditCard size={20} />, label: "Subscription", path: "subscription" },
-            { icon: <MessageSquare size={20} />, label: "Live Support", path: "chat" },
+            { icon: <MessageSquare size={20} />, label: "Live Support", path: "support" },
             { icon: <User size={20} />, label: "Profile Settings", path: "profile" },
           ].map((item, i) => (
-            <Link key={i} to={item.path} className="btn-outline" style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'flex-start', border: 'none', padding: '15px' }}>
-              {item.icon} {item.label}
+            <Link key={i} to={item.path} className="nav-item">
+              {item.icon} <span>{item.label}</span>
             </Link>
           ))}
         </nav>
-        <button onClick={() => handleLogout()} className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--danger)', borderColor: 'transparent' }}>
-          <LogOut size={20} /> Logout
+
+        <button onClick={handleLogout} className="logout-btn">
+          <LogOut size={20} /> <span>Logout</span>
         </button>
-      </div>
+      </aside>
 
       {/* Main Content */}
-      <div style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
-        {/* Header */}
-        <div className="glass" style={{ padding: '20px 40px', marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <main className="main-content">
+        <header className="content-header glass">
           <div>
-            <h2 style={{ fontSize: '1.2rem', textAlign: 'left', marginBottom: 0 }}>Welcome, {user.name}</h2>
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>Plan: <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>{user.plan.toUpperCase()}</span></p>
+            <h2>Welcome, {user.name}</h2>
+            <p className="plan-badge">Plan: {user.plan?.toUpperCase()}</p>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <p style={{ margin: 0, fontSize: '0.8rem' }}>Time Left</p>
-            <h3 style={{ color: 'var(--warning)', margin: 0 }}>{timeLeft || 'Calculating...'}</h3>
+          <div className="timer-box">
+            <span className="timer-label">Time Left</span>
+            <span className="timer-value">{timeLeft}</span>
           </div>
-        </div>
+        </header>
 
-        {/* Dynamic Content */}
-        <Routes>
-          <Route path="/" element={<DashboardHome user={user} />} />
-          <Route path="lookup" element={<CustomerLookup />} />
-          <Route path="report" element={<BlacklistReport />} />
-          <Route path="subscription" element={<Subscription />} />
-          <Route path="chat" element={<Chat user={user} role="store" />} />
-          <Route path="profile" element={<Profile user={user} setUser={setUser} />} />
-        </Routes>
-      </div>
+        <div className="dashboard-grid">
+          <Routes>
+            <Route path="/" element={<HomeStats stats={stats} />} />
+            <Route path="lookup" element={<CustomerLookup />} />
+            <Route path="report" element={<BlacklistReport />} />
+            <Route path="subscription" element={<Subscription />} />
+            <Route path="support" element={<Chat user={user} role="store" />} />
+            <Route path="profile" element={<Profile user={user} setUser={setUser} />} />
+          </Routes>
+        </div>
+      </main>
     </div>
   );
 };
 
-const DashboardHome = ({ user }) => (
-  <div className="animate-fade">
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
-      <div className="glass" style={{ padding: '30px' }}>
-        <p>Total Searches</p>
-        <h2>42</h2>
+const HomeStats = ({ stats }) => (
+  <div className="stats-layout animate-fade">
+    <div className="stats-grid">
+      <div className="stat-card glass">
+        <TrendingUp className="stat-icon" />
+        <div className="stat-info">
+          <h3>Total Searches</h3>
+          <p className="stat-number">{stats.totalSearches}</p>
+        </div>
       </div>
-      <div className="glass" style={{ padding: '30px' }}>
-        <p>Blacklisted by You</p>
-        <h2>5</h2>
+      <div className="stat-card glass">
+        <ShieldAlert className="stat-icon" style={{color: 'var(--danger)'}} />
+        <div className="stat-info">
+          <h3>Blacklisted by You</h3>
+          <p className="stat-number">{stats.blacklistedByYou}</p>
+        </div>
       </div>
-      <div className="glass" style={{ padding: '30px' }}>
-        <p>System Wide Reports</p>
-        <h2>1.2k+</h2>
+      <div className="stat-card glass">
+        <Activity className="stat-icon" style={{color: 'var(--success)'}} />
+        <div className="stat-info">
+          <h3>System Reports</h3>
+          <p className="stat-number">{stats.systemWideReports}</p>
+        </div>
       </div>
     </div>
-    <div className="glass" style={{ marginTop: '30px', padding: '40px' }}>
-      <h3>Platform Activity</h3>
-      <p>Daraz PK just blacklisted 0300-XXXXXXX for 'Refused Delivery'.</p>
-      <p>Store "FashionHub" reported a fraud email: fake@gmail.com</p>
+
+    <div className="activity-card glass">
+      <h3><Activity size={20} style={{verticalAlign: 'middle', marginRight: '10px'}} /> Platform Activity</h3>
+      <div className="activity-list">
+        {stats.recentActivity.length > 0 ? stats.recentActivity.map((act, i) => (
+          <div key={i} className="activity-item">
+            <span className="store-name">{act.reportedBy?.name}</span> blacklisted <strong>{act.phone.slice(0, 4)}XXXXXXX</strong> for '{act.reason}'
+          </div>
+        )) : <p style={{color: 'var(--text-muted)'}}>No recent activity found.</p>}
+      </div>
     </div>
   </div>
 );
