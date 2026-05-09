@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [msg, setMsg] = useState({ text: '', type: '' });
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMsg({ text: '', type: '' });
     try {
       const res = await fetch('http://localhost:5000/api/auth/store/signup', {
         method: 'POST',
@@ -15,13 +17,13 @@ const Signup = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        alert(data.message);
-        navigate('/login');
+        setMsg({ text: data.message + ' Redirecting...', type: 'success' });
+        setTimeout(() => navigate('/login'), 2000);
       } else {
-        alert(data.error);
+        setMsg({ text: data.error, type: 'error' });
       }
     } catch (err) {
-      alert('Signup failed');
+      setMsg({ text: 'Could not connect to server', type: 'error' });
     }
   };
 
@@ -29,6 +31,13 @@ const Signup = () => {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="glass premium-shadow" style={{ width: '400px', padding: '40px' }}>
         <h2 style={{ marginBottom: '30px' }}>Create Store Account</h2>
+        
+        {msg.text && (
+          <div className={`alert alert-${msg.type}`}>
+            {msg.text}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <label>Store Name</label>
           <input type="text" placeholder="Enter store name" required onChange={e => setFormData({...formData, name: e.target.value})} />

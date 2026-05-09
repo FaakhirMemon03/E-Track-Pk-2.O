@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [msg, setMsg] = useState({ text: '', type: '' });
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMsg({ text: '', type: '' });
     try {
       const res = await fetch('http://localhost:5000/api/auth/store/login', {
         method: 'POST',
@@ -17,12 +19,13 @@ const Login = () => {
       if (res.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.store));
-        navigate('/dashboard');
+        setMsg({ text: 'Login successful! Redirecting...', type: 'success' });
+        setTimeout(() => navigate('/dashboard'), 1500);
       } else {
-        alert(data.error);
+        setMsg({ text: data.error, type: 'error' });
       }
     } catch (err) {
-      alert('Login failed');
+      setMsg({ text: 'Could not connect to server', type: 'error' });
     }
   };
 
@@ -30,6 +33,13 @@ const Login = () => {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="glass premium-shadow" style={{ width: '400px', padding: '40px' }}>
         <h2 style={{ marginBottom: '30px' }}>Login to E-Track</h2>
+
+        {msg.text && (
+          <div className={`alert alert-${msg.type}`}>
+            {msg.text}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <label>Store Email</label>
           <input type="email" placeholder="email@store.com" required onChange={e => setFormData({...formData, email: e.target.value})} />
