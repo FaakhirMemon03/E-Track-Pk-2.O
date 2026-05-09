@@ -11,6 +11,7 @@ const storeSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false }, // For email verification
   resetPasswordToken: { type: String },
   resetPasswordExpire: { type: Date },
+  searchCount: { type: Number, default: 0 },
 }, { timestamps: true });
 
 // Pre-save to set trial expiration if new

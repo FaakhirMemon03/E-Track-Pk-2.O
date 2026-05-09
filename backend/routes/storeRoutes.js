@@ -17,6 +17,27 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+const upload = multer({ storage });
+
+// Get Store Statistics
+router.get('/stats', requireAuth('store'), async (req, res) => {
+  try {
+    const blacklistedByYou = await Customer.countDocuments({ reportedBy: req.user._id });
+    const systemWideReports = await Customer.countDocuments();
+    
+    // For now, we use a placeholder for total searches or track it in the user model later
+    // Let's assume total searches is stored in req.user.searchCount (we can add this)
+    res.json({
+      totalSearches: req.user.searchCount || 0,
+      blacklistedByYou,
+      systemWideReports,
+      recentActivity: await Customer.find().sort({ createdAt: -1 }).limit(3).populate('reportedBy', 'name')
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Lookup customer in shared blacklist
 router.get('/lookup', requireAuth('store'), async (req, res) => {
   try {
@@ -35,6 +56,10 @@ router.get('/lookup', requireAuth('store'), async (req, res) => {
     else if (reportCount >= 1) risk = 'Medium Risk';
 
     res.json({ risk, reports: customers });
+
+    // Update search count
+    req.user.searchCount = (req.user.searchCount || 0) + 1;
+    await req.user.save();
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
