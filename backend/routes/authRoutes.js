@@ -68,4 +68,80 @@ router.post('/admin/login', async (req, res) => {
   }
 });
 
+// --- Forgot/Reset Password ---
+
+// Admin: Get Recovery Question
+router.post('/admin/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const admin = await Admin.findOne({ email });
+    if (!admin) return res.status(404).json({ error: 'Admin not found' });
+    res.json({ question: admin.recoveryQuestion });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Admin: Reset Password via Answer
+router.post('/admin/reset-password', async (req, res) => {
+  try {
+    const { email, answer, newPassword } = req.body;
+    const admin = await Admin.findOne({ email });
+    if (!admin) return res.status(404).json({ error: 'Admin not found' });
+    
+    if (admin.recoveryAnswer !== answer) {
+      return res.status(400).json({ error: 'Incorrect answer' });
+    }
+
+    admin.password = await bcrypt.hash(newPassword, 10);
+    await admin.save();
+    res.json({ message: 'Password reset successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Store: Forgot Password (Mock Email Token)
+router.post('/store/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const store = await Store.findOne({ email });
+    if (!store) return res.status(404).json({ error: 'Store not found' });
+
+    // Generate random 6-digit code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    store.resetPasswordToken = resetCode;
+    store.resetPasswordExpire = Date.now() + 3600000; // 1 hour
+    await store.save();
+
+    // In real app, send email here. For now, we return it so user can test.
+    res.json({ message: 'Reset code sent to email', code: resetCode });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Store: Reset Password via Token
+router.post('/store/reset-password', async (req, res) => {
+  try {
+    const { email, token, newPassword } = req.body;
+    const store = await Store.findOne({ 
+      email, 
+      resetPasswordToken: token,
+      resetPasswordExpire: { $gt: Date.now() }
+    });
+
+    if (!store) return res.status(400).json({ error: 'Invalid or expired reset code' });
+
+    store.password = await bcrypt.hash(newPassword, 10);
+    store.resetPasswordToken = undefined;
+    store.resetPasswordExpire = undefined;
+    await store.save();
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
