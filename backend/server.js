@@ -23,9 +23,16 @@ app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
 // Routes
-// app.use('/api/auth', require('./routes/authRoutes'));
-// app.use('/api/store', require('./routes/storeRoutes'));
-// app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/store', require('./routes/storeRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/chat', require('./routes/chatRoutes'));
+
+// Ensure uploads directory exists
+const fs = require('fs');
+if (!fs.existsSync('./uploads')) {
+  fs.mkdirSync('./uploads');
+}
 
 // Socket.io for Live Chat
 io.on('connection', (socket) => {
