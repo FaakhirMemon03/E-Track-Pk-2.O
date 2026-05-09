@@ -3,10 +3,12 @@ import React, { useState } from 'react';
 const Subscription = () => {
   const [file, setFile] = useState(null);
   const [transactionId, setTransactionId] = useState('');
+  const [msg, setMsg] = useState({ text: '', type: '' });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) return alert('Please upload a screenshot');
+    setMsg({ text: '', type: '' });
+    if (!file) return setMsg({ text: 'Please upload a screenshot', type: 'error' });
     
     const formData = new FormData();
     formData.append('screenshot', file);
@@ -19,17 +21,26 @@ const Subscription = () => {
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
+      const data = await res.json();
       if (res.ok) {
-        alert('Payment proof submitted. Admin will review your request.');
+        setMsg({ text: 'Payment proof submitted. Admin will review and activate your plan.', type: 'success' });
+      } else {
+        setMsg({ text: data.error || 'Upload failed', type: 'error' });
       }
     } catch (err) {
-      alert('Upload failed');
+      setMsg({ text: 'Server connection error', type: 'error' });
     }
   };
 
   return (
     <div className="glass animate-fade" style={{ padding: '40px', maxWidth: '600px' }}>
       <h3>Purchase / Renew Plan</h3>
+      
+      {msg.text && (
+        <div className={`alert alert-${msg.type}`}>
+          {msg.text}
+        </div>
+      )}
       <div style={{ marginBottom: '30px', padding: '20px', background: 'rgba(99,102,241,0.1)', borderRadius: '12px' }}>
         <p><strong>Payment Instructions:</strong></p>
         <p>Send the amount to the following Easypaisa/JazzCash account:</p>
