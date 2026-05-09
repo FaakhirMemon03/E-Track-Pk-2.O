@@ -1,0 +1,77 @@
+const express = require('express');
+const router = express.Router();
+const Store = require('../models/Store');
+const Customer = require('../models/Customer');
+const { requireAuth } = require('../middleware/auth');
+
+// List all stores
+router.get('/stores', requireAuth('admin'), async (req, res) => {
+  try {
+    const stores = await Store.find().select('-password');
+    res.json(stores);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Block/Unblock store
+router.put('/stores/:id/status', requireAuth('admin'), async (req, res) => {
+  try {
+    const { status } = req.body; // 'active', 'banned'
+    const store = await Store.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    res.json({ message: `Store ${status} successfully`, store });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Approve subscription/plan
+router.put('/stores/:id/activate', requireAuth('admin'), async (req, res) => {
+  try {
+    const { plan, durationMonths } = req.body;
+    const expiresAt = new Date();
+    expiresAt.setMonth(expiresAt.getMonth() + durationMonths);
+
+    const store = await Store.findByIdAndUpdate(req.params.id, {
+      plan,
+      planExpiresAt: expiresAt,
+      status: 'active'
+    }, { new: true });
+
+    res.json({ message: 'Plan activated successfully', store });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// View all blacklisted customers
+router.get('/customers', requireAuth('admin'), async (req, res) => {
+  try {
+    const customers = await Customer.find().populate('reportedBy', 'name');
+    res.json(customers);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update Admin Profile
+router.put('/profile', requireAuth('admin'), async (req, res) => {
+  try {
+    const { username, password, recoveryQuestion, recoveryAnswer } = req.body;
+    if (username) req.user.username = username;
+    if (recoveryQuestion) req.user.recoveryQuestion = recoveryQuestion;
+    if (recoveryAnswer) req.user.recoveryAnswer = recoveryAnswer;
+    
+    if (password) {
+      const bcrypt = require('bcryptjs');
+      req.user.password = await bcrypt.hash(password, 10);
+    }
+
+    await req.user.save();
+    res.json({ message: 'Admin profile updated' });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+module.exports = router;
