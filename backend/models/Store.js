@@ -12,6 +12,8 @@ const storeSchema = new mongoose.Schema({
   resetPasswordToken: { type: String },
   resetPasswordExpire: { type: Date },
   searchCount: { type: Number, default: 0 },
+  paymentTransactionId: { type: String },
+  paymentScreenshot: { type: String },
 }, { timestamps: true });
 
 // Pre-save to set trial expiration if new

@@ -85,9 +85,11 @@ router.post('/report', requireAuth('store'), async (req, res) => {
 router.post('/payment-proof', requireAuth('store'), upload.single('screenshot'), async (req, res) => {
   try {
     const { transactionId } = req.body;
-    // In a real app, we might store this in a 'Payments' collection.
-    // For now, we just notify the admin or mark store as pending approval.
     req.user.status = 'pending_approval';
+    req.user.paymentTransactionId = transactionId;
+    if (req.file) {
+      req.user.paymentScreenshot = `/uploads/${req.file.filename}`;
+    }
     await req.user.save();
     res.json({ message: 'Payment proof submitted. Admin will review and activate your plan.' });
   } catch (error) {
