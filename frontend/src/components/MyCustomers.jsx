@@ -60,6 +60,7 @@ const MyCustomers = () => {
         setShowReportModal(false);
         setReportReason('');
       }
+    } catch (e) {
       alert(e.response?.data?.error || 'Failed to report customer');
     }
   };
