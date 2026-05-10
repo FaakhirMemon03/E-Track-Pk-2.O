@@ -67,6 +67,20 @@ router.get('/lookup', requireAuth('store'), async (req, res) => {
 router.post('/report', requireAuth('store'), async (req, res) => {
   try {
     const { phone, email, address, reason } = req.body;
+    
+    // Check plan and limits
+    const isTrial = req.user.plan === 'trial';
+    const isExpired = req.user.planExpiresAt && new Date() > req.user.planExpiresAt;
+    
+    if (isTrial || isExpired) {
+      const reportCount = await Customer.countDocuments({ reportedBy: req.user._id });
+      if (reportCount >= 50) {
+        return res.status(403).json({ 
+          error: 'Report limit reached. Trial/Free users can only report up to 50 customers. Please upgrade your plan for unlimited reports.' 
+        });
+      }
+    }
+
     const customer = new Customer({
       phone,
       email,
@@ -84,9 +98,10 @@ router.post('/report', requireAuth('store'), async (req, res) => {
 // Submit payment proof
 router.post('/payment-proof', requireAuth('store'), upload.single('screenshot'), async (req, res) => {
   try {
-    const { transactionId } = req.body;
+    const { transactionId, plan } = req.body;
     req.user.status = 'pending_approval';
     req.user.paymentTransactionId = transactionId;
+    req.user.requestedPlan = plan;
     if (req.file) {
       req.user.paymentScreenshot = `/uploads/${req.file.filename}`;
     }

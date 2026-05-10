@@ -29,13 +29,32 @@ router.put('/stores/:id/status', requireAuth('admin'), async (req, res) => {
 router.put('/stores/:id/activate', requireAuth('admin'), async (req, res) => {
   try {
     const { plan, durationMonths } = req.body;
-    const expiresAt = new Date();
-    expiresAt.setMonth(expiresAt.getMonth() + durationMonths);
+    let months = parseInt(durationMonths);
+    
+    // Auto-map duration if not provided correctly
+    if (!months || isNaN(months)) {
+      if (plan === '1month') months = 1;
+      else if (plan === '6month') months = 6;
+      else if (plan === '1year') months = 12;
+      else months = 1;
+    }
+
+    const storeToUpdate = await Store.findById(req.params.id);
+    if (!storeToUpdate) return res.status(404).json({ error: 'Store not found' });
+
+    let expiresAt = new Date();
+    // If store already has an active plan that hasn't expired, extend it
+    if (storeToUpdate.planExpiresAt && storeToUpdate.planExpiresAt > new Date()) {
+      expiresAt = new Date(storeToUpdate.planExpiresAt);
+    }
+    
+    expiresAt.setMonth(expiresAt.getMonth() + months);
 
     const store = await Store.findByIdAndUpdate(req.params.id, {
       plan,
       planExpiresAt: expiresAt,
-      status: 'active'
+      status: 'active',
+      requestedPlan: 'none'
     }, { new: true });
 
     res.json({ message: 'Plan activated successfully', store });

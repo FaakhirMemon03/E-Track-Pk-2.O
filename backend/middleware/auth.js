@@ -16,9 +16,6 @@ const requireAuth = (role) => async (req, res, next) => {
       const store = await Store.findById(decoded.id);
       if (!store) return res.status(401).json({ error: 'Store not found' });
       if (store.status === 'banned') return res.status(403).json({ error: 'Your account is banned' });
-      if (store.planExpiresAt && new Date() > store.planExpiresAt) {
-        return res.status(403).json({ error: 'Plan expired' });
-      }
       req.user = store;
     } else if (decoded.role === 'admin') {
       const admin = await Admin.findById(decoded.id);

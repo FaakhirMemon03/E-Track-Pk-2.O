@@ -14,6 +14,7 @@ const storeSchema = new mongoose.Schema({
   searchCount: { type: Number, default: 0 },
   paymentTransactionId: { type: String },
   paymentScreenshot: { type: String },
+  requestedPlan: { type: String, enum: ['1month', '6month', '1year', 'none'], default: 'none' },
 }, { timestamps: true });
 
 // Pre-save to set trial expiration if new
