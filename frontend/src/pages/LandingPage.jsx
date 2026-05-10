@@ -16,6 +16,29 @@ const LandingPage = () => {
       .then(r => r.json())
       .then(data => { if (data && !data.error) setStats(data); });
   }, []);
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
+  const [contactStatus, setContactStatus] = useState({ text: '', type: '' });
+
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    setContactStatus({ text: 'Sending...', type: 'info' });
+    try {
+      const res = await fetch('http://localhost:5000/api/public/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contactForm)
+      });
+      if (res.ok) {
+        setContactStatus({ text: 'Message sent successfully! We will contact you soon.', type: 'success' });
+        setContactForm({ name: '', email: '', message: '' });
+      } else {
+        setContactStatus({ text: 'Failed to send message. Please try again.', type: 'error' });
+      }
+    } catch (err) {
+      setContactStatus({ text: 'Connection error.', type: 'error' });
+    }
+  };
+
   return (
     <div className="bg-slate-950 text-white selection:bg-indigo-500/30">
       {/* Hero Section */}
