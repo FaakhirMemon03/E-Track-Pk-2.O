@@ -139,7 +139,12 @@ router.post('/store/forgot-password', async (req, res) => {
 // Store: Reset Password via Token
 router.post('/store/reset-password', async (req, res) => {
   try {
-    const { email, token, newPassword } = req.body;
+    const { email, token, newPassword, confirmPassword } = req.body;
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ error: 'Passwords do not match' });
+    }
+
     const store = await Store.findOne({ 
       email, 
       resetPasswordToken: token,

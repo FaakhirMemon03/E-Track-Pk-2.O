@@ -7,6 +7,7 @@ const ForgotPassword = () => {
   const [step, setStep] = useState(1); // 1: Email, 2: Code & New Password
   const [token, setToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [msg, setMsg] = useState({ text: '', type: '' });
   const navigate = useNavigate();
 
@@ -21,7 +22,7 @@ const ForgotPassword = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        setMsg({ text: `Reset code: ${data.code} (Check your console or terminal if email is not configured)`, type: 'success' });
+        setMsg({ text: 'Reset code sent to your email. Please check your inbox.', type: 'success' });
         setStep(2);
       } else {
         setMsg({ text: data.error, type: 'error' });
@@ -34,11 +35,16 @@ const ForgotPassword = () => {
   const handleReset = async (e) => {
     e.preventDefault();
     setMsg({ text: '', type: '' });
+
+    if (newPassword !== confirmPassword) {
+      return setMsg({ text: 'Passwords do not match', type: 'error' });
+    }
+
     try {
       const res = await fetch(`http://localhost:5000/api/auth/store/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, token, newPassword })
+        body: JSON.stringify({ email, token, newPassword, confirmPassword })
       });
       const data = await res.json();
       if (res.ok) {
@@ -118,6 +124,18 @@ const ForgotPassword = () => {
                 required 
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Confirm Password</label>
+              <input 
+                type="password" 
+                placeholder="Confirm your new password" 
+                className="input-field h-14"
+                required 
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
             
