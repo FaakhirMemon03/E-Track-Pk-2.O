@@ -80,22 +80,22 @@ const AdminDashboard = () => {
         </nav>
 
         {/* Admin Card */}
-        <div className="mt-auto space-y-6">
-          <div className="p-6 rounded-[28px] bg-white/5 border border-white/5 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
-                <UserCircle size={20} />
+        <div className="mt-auto pt-8 border-t border-white/5 relative z-10">
+          <div className="glass p-5 rounded-[24px] bg-linear-to-br from-indigo-500/10 to-transparent border border-white/5">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-indigo-400 font-black border border-white/10 shadow-lg">
+                {admin.name?.charAt(0) || 'A'}
               </div>
-              <div className="min-w-0">
-                <p className="text-xs font-black text-white truncate">{admin.email?.split('@')[0]}</p>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Master Admin</p>
+              <div>
+                <p className="text-sm font-black text-white leading-tight">{admin.name || 'Master Admin'}</p>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Master Access</p>
               </div>
             </div>
             <button 
-              onClick={handleLogout} 
-              className="w-full flex items-center justify-center gap-3 py-3 rounded-xl text-xs font-black text-red-400 bg-red-500/10 border border-red-500/10 hover:bg-red-500 hover:text-white transition-all duration-300"
+              onClick={handleLogout}
+              className="w-full mt-6 py-3 rounded-xl bg-white/5 hover:bg-red-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 border border-white/5"
             >
-              <LogOut size={14} /> <span>Sign Out</span>
+              <LogOut size={14} /> Terminate Session
             </button>
           </div>
         </div>
