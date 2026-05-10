@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Mail, Lock, ShieldCheck, HelpCircle, Save, Key } from 'lucide-react';
+import { Settings, Mail, Lock, ShieldCheck, HelpCircle, Save, Key, Shield } from 'lucide-react';
 
 const AdminProfile = ({ admin, setAdmin }) => {
   const [formData, setFormData] = useState({ 
