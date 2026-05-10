@@ -43,6 +43,24 @@ const MyCustomers = () => {
     } catch (e) {}
   };
 
+  const handleReportToNetwork = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post('http://localhost:5000/api/store/report', {
+        phone: selectedForReport.phone,
+        email: selectedForReport.email || 'N/A',
+        address: selectedForReport.address || 'N/A',
+        reason: reportReason
+      }, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.status === 201) {
+        alert('Customer successfully reported to the global network!');
+        setShowReportModal(false);
+        setReportReason('');
+      }
+    } catch (e) {
   const handleAddCustomer = async (e) => {
     e.preventDefault();
     try {
