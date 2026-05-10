@@ -3,7 +3,7 @@ import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom'
 import { 
   Users, ShieldCheck, Settings, MessageSquare, LogOut, 
   Shield, Bell, LayoutGrid, Activity, ChevronRight, UserCircle,
-  TrendingUp, AlertCircle, CheckCircle, Package
+  TrendingUp, AlertCircle, CheckCircle, Package, ShieldAlert 
 } from 'lucide-react';
 import StoreManagement from '../components/admin/StoreManagement';
 import BlacklistMonitor from '../components/admin/BlacklistMonitor';
