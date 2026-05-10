@@ -3,7 +3,7 @@ import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom'
 import { 
   LayoutDashboard, Search, ShieldAlert, CreditCard, 
   MessageSquare, User, LogOut, TrendingUp, Activity, 
-  Shield, Bell, ChevronRight, Clock, ExternalLink, Menu, X
+  Shield, Bell, ChevronRight, Clock, ExternalLink, Menu, X, Users
 } from 'lucide-react';
 import CustomerLookup from '../components/CustomerLookup';
 import BlacklistReport from '../components/BlacklistReport';
