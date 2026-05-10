@@ -100,15 +100,28 @@ const Subscription = () => {
               <Landmark className="text-indigo-400" size={24} /> Payment Guide
             </h4>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
+              {/* Mobile Wallets */}
               <div className="p-6 rounded-3xl bg-white/5 border border-white/5 space-y-4 group hover:bg-white/10 transition-all">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Platform</span>
-                  <span className="text-xs font-black text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full">EasyPaisa / JazzCash</span>
+                  <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Wallets</span>
+                  <span className="text-xs font-black text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full">EasyPaisa / JazzCash / NayaPay</span>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-2xl font-black text-white group-hover:tracking-wider transition-all duration-500">0300-1234567</p>
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Account Name: E-Track PK Admin</p>
+                  <p className="text-2xl font-black text-white group-hover:tracking-wider transition-all duration-500">03708433612</p>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest tracking-tighter">Account Title: Faakhir Memon</p>
+                </div>
+              </div>
+
+              {/* Bank Transfer */}
+              <div className="p-6 rounded-3xl bg-white/5 border border-white/5 space-y-4 group hover:bg-white/10 transition-all">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Bank Transfer</span>
+                  <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">Meezan Bank</span>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xl font-black text-white group-hover:tracking-wider transition-all duration-500">00300110767869</p>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Account Title: Faakhir Memon</p>
                 </div>
               </div>
 
