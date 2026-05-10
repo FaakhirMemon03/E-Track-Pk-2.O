@@ -209,10 +209,18 @@ router.post('/my-customers/bulk', requireAuth('store'), upload.single('file'), a
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
     const workbook = xlsx.readFile(req.file.path);
-    const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+    let sheetData = [];
+    
+    // Try each sheet until we find data
+    for (const name of workbook.SheetNames) {
+      const data = xlsx.utils.sheet_to_json(workbook.Sheets[name]);
+      if (data.length > 0) {
+        sheetData = data;
+        break;
+      }
+    }
 
     const records = sheetData.map(row => {
-      // Find keys regardless of case or spaces
       const findVal = (possibleKeys) => {
         const key = Object.keys(row).find(k => possibleKeys.includes(k.toLowerCase().trim()));
         return key ? String(row[key]).trim() : '';
@@ -226,11 +234,14 @@ router.post('/my-customers/bulk', requireAuth('store'), upload.single('file'), a
         notes: findVal(['notes', 'reason', 'description', 'remark']),
         storeId: req.user._id
       };
-    }).filter(r => r.phone);
+    }).filter(r => r.phone && r.phone.length >= 7);
 
-    if (!records.length) return res.status(400).json({ 
-      error: 'No valid records found. Please ensure your Excel has columns like Name, Phone, and Email.' 
-    });
+    if (!records.length) {
+      const foundKeys = sheetData.length > 0 ? Object.keys(sheetData[0]).join(', ') : 'None (Empty Sheet)';
+      return res.status(400).json({ 
+        error: `Import Failed: No valid records with phone numbers found. Columns detected: [${foundKeys}]. Please ensure you have a "Phone" column.` 
+      });
+    }
 
     // Use bulkWrite for upsert or just insertMany with ordered false to skip duplicates
     try {
