@@ -178,4 +178,57 @@ router.post('/bulk-report', requireAuth('store'), upload.single('file'), async (
   }
 });
 
+const StoreCustomer = require('../models/StoreCustomer');
+
+// ... existing code ...
+
+// Get My Customers
+router.get('/my-customers', requireAuth('store'), async (req, res) => {
+  try {
+    const customers = await StoreCustomer.find({ storeId: req.user._id }).sort({ createdAt: -1 });
+    res.json(customers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Add Single Customer
+router.post('/my-customers', requireAuth('store'), async (req, res) => {
+  try {
+    const customer = new StoreCustomer({ ...req.body, storeId: req.user._id });
+    await customer.save();
+    res.status(201).json({ message: 'Customer added to your database', customer });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Bulk Upload My Customers
+router.post('/my-customers/bulk', requireAuth('store'), upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const workbook = xlsx.readFile(req.file.path);
+    const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+    const records = sheetData.map(row => ({
+      name: row.name || row.Name || row.NAME || 'Unknown',
+      phone: row.phone || row.Phone || row.PHONE || '',
+      email: row.email || row.Email || row.EMAIL || '',
+      address: row.address || row.Address || row.ADDRESS || '',
+      notes: row.notes || row.Notes || '',
+      storeId: req.user._id
+    })).filter(r => r.phone);
+
+    if (!records.length) return res.status(400).json({ error: 'No valid records with phone numbers found' });
+
+    // Use bulkWrite for upsert or just insertMany
+    await StoreCustomer.insertMany(records, { ordered: false }); 
+
+    res.status(201).json({ message: `${records.length} customers imported successfully.` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
