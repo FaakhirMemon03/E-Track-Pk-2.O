@@ -87,11 +87,11 @@ const AdminDashboard = () => {
         <main className="flex-1 overflow-y-auto p-8 custom-scrollbar">
           <Routes>
             <Route path="/" element={<AdminOverview />} />
-            <Route path="/stores" element={<StoreManagement />} />
-            <Route path="/monitor" element={<BlacklistMonitor />} />
-            <Route path="/chats" element={<ChatList onSelectStore={(id) => navigate(`chats/${id}`)} />} />
-            <Route path="/chats/:storeId" element={<Chat user={{ ...admin, currentChatStoreId: window.location.pathname.split('/').pop() }} role="admin" />} />
-            <Route path="/settings" element={<AdminProfile admin={admin} setAdmin={setAdmin} />} />
+            <Route path="stores" element={<StoreManagement />} />
+            <Route path="monitor" element={<BlacklistMonitor />} />
+            <Route path="chats" element={<ChatList onSelectStore={(id) => navigate(`/admin/chats/${id}`)} />} />
+            <Route path="chats/:storeId" element={<Chat user={{ ...admin, currentChatStoreId: window.location.pathname.split('/').pop() }} role="admin" />} />
+            <Route path="settings" element={<AdminProfile admin={admin} setAdmin={setAdmin} />} />
           </Routes>
         </main>
       </div>

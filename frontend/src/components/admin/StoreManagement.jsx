@@ -5,6 +5,14 @@ import {
   AlertCircle, ChevronRight, Package, CreditCard 
 } from 'lucide-react';
 
+const planMapping = {
+  'trial': 'Trial (14 Days)',
+  '1month': 'Starter Plan',
+  '6month': 'Professional',
+  '1year': 'Enterprise',
+  'none': 'No Active Plan'
+};
+
 const StoreManagement = () => {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -103,10 +111,10 @@ const StoreManagement = () => {
                     <td className="px-8 py-8">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-slate-400">
-                          <Calendar size={14} />
+                          <Package size={14} />
                         </div>
                         <div>
-                          <span className="text-xs font-black text-white uppercase tracking-widest">{store.plan}</span>
+                          <span className="text-xs font-black text-white uppercase tracking-widest">{planMapping[store.plan] || store.plan}</span>
                           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">
                             {store.planExpiresAt ? `Exp: ${new Date(store.planExpiresAt).toLocaleDateString()}` : 'No Expiry Set'}
                           </p>
@@ -169,9 +177,9 @@ const StoreManagement = () => {
                   value={activationData.plan}
                   onChange={(e) => setActivationData({...activationData, plan: e.target.value})}
                 >
-                  <option value="1month">1 Month - PKR 999</option>
-                  <option value="6month">6 Months - PKR 4,999</option>
-                  <option value="1year">1 Year - PKR 8,999</option>
+                  <option value="1month">Starter Plan - PKR 999</option>
+                  <option value="6month">Professional - PKR 4,999</option>
+                  <option value="1year">Enterprise - PKR 8,999</option>
                 </select>
               </div>
               <div className="space-y-2">
