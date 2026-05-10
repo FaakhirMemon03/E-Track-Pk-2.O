@@ -1,9 +1,21 @@
-import React from 'react';
-import { Shield, Zap, TrendingDown, MessageCircle, AlertCircle, PhoneOff, XCircle, DollarSign, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Shield, Zap, TrendingDown, MessageCircle, AlertCircle, PhoneOff, XCircle, DollarSign, CheckCircle, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
 const LandingPage = () => {
+  const [topStore, setTopStore] = useState({ name: "E-Track Hero", count: 0, joined: new Date() });
+  const [stats, setStats] = useState({ totalReports: 0, totalStores: 0 });
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/public/top-protector')
+      .then(r => r.json())
+      .then(data => { if (data && !data.error) setTopStore(data); });
+
+    fetch('http://localhost:5000/api/public/stats')
+      .then(r => r.json())
+      .then(data => { if (data && !data.error) setStats(data); });
+  }, []);
   return (
     <div className="bg-slate-950 text-white selection:bg-indigo-500/30">
       {/* Hero Section */}
