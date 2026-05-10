@@ -10,11 +10,13 @@ import BlacklistReport from '../components/BlacklistReport';
 import Subscription from '../components/Subscription';
 import Chat from '../components/Chat';
 import Profile from '../components/Profile';
+import MyCustomers from '../components/MyCustomers';
 import logo from '../assets/logo.png';
 
 const navItems = [
   { icon: <LayoutDashboard size={20} />, label: 'Dashboard',      path: '/dashboard' },
-  { icon: <Search size={20} />,          label: 'Risk Lookup',    path: '/dashboard/lookup' },
+  { icon: <Search size={20} />,          label: 'Customer Lookup', path: '/dashboard/lookup' },
+  { icon: <Users size={20} />,           label: 'My Customers',    path: '/dashboard/customers' },
   { icon: <ShieldAlert size={20} />,     label: 'Report Fraud',   path: '/dashboard/report' },
   { icon: <CreditCard size={20} />,      label: 'Subscription',   path: '/dashboard/subscription' },
   { icon: <MessageSquare size={20} />,   label: 'Live Support',   path: '/dashboard/support' },
@@ -136,8 +138,9 @@ const StoreDashboard = () => {
         <main className="flex-1 overflow-y-auto p-8 custom-scrollbar">
           <Routes>
             <Route path="/"            element={<Overview stats={stats} user={user} />} />
-            <Route path="lookup"       element={<CustomerLookup />} />
-            <Route path="report"       element={<BlacklistReport />} />
+            <Route path="/lookup"      element={<CustomerLookup />} />
+            <Route path="/customers"   element={<MyCustomers />} />
+            <Route path="/report"      element={<BlacklistReport />} />
             <Route path="subscription" element={<Subscription />} />
             <Route path="support"      element={<Chat user={user} role="store" />} />
             <Route path="profile"      element={<Profile user={user} setUser={setUser} />} />
