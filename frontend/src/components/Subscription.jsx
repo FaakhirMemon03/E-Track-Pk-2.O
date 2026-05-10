@@ -81,7 +81,7 @@ const Subscription = () => {
                 <span className="text-3xl font-black text-white tracking-tighter">{plan.price}</span>
               </div>
               <p className="text-xs font-medium text-slate-400 leading-relaxed mb-6">{plan.desc}</p>
-              
+
               <div className={`flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-opacity duration-300 ${selectedPlan === plan.id ? 'opacity-100 text-indigo-400' : 'opacity-0'}`}>
                 <CheckCircle size={14} /> Selected Plan
               </div>
@@ -94,12 +94,12 @@ const Subscription = () => {
         {/* Payment Guide */}
         <div className="glass p-10 rounded-[40px] border-white/5 space-y-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 blur-3xl rounded-full -mr-32 -mt-32"></div>
-          
+
           <div className="relative z-10">
             <h4 className="text-xl font-bold text-white mb-6 flex items-center gap-3 tracking-tight">
               <Landmark className="text-indigo-400" size={24} /> Payment Guide
             </h4>
-            
+
             <div className="space-y-6">
               <div className="p-6 rounded-3xl bg-white/5 border border-white/5 space-y-4 group hover:bg-white/10 transition-all">
                 <div className="flex justify-between items-center">
@@ -160,7 +160,7 @@ const Subscription = () => {
               <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                 <Upload size={12} /> Payment Screenshot
               </label>
-              <div 
+              <div
                 className={`relative group cursor-pointer border-2 border-dashed rounded-3xl p-10 text-center transition-all ${file ? 'border-indigo-500 bg-indigo-500/5' : 'border-white/10 hover:border-indigo-500/50 hover:bg-white/5'}`}
                 onClick={() => document.getElementById('pay-file').click()}
               >
@@ -175,9 +175,9 @@ const Subscription = () => {
               </div>
             </div>
 
-            <button 
-              type="submit" 
-              className="btn-primary w-full h-16 rounded-[24px] text-lg font-black tracking-tight flex items-center justify-center gap-3 disabled:opacity-50 group shadow-2xl" 
+            <button
+              type="submit"
+              className="btn-primary w-full h-16 rounded-[24px] text-lg font-black tracking-tight flex items-center justify-center gap-3 disabled:opacity-50 group shadow-2xl"
               disabled={loading}
             >
               {loading ? (
