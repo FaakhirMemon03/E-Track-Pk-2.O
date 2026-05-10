@@ -21,8 +21,6 @@ const navItems = [
   { icon: <User size={20} />,            label: 'Profile',        path: '/dashboard/profile' },
 ];
 
-import { getApiUrl, getUploadUrl } from '../api';
-
 const StoreDashboard = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || {});
   const [stats, setStats] = useState({ totalSearches: 0, blacklistedByYou: 0, systemWideReports: 0, recentActivity: [] });
@@ -35,7 +33,8 @@ const StoreDashboard = () => {
     const timer = setInterval(() => {
       const diff = new Date(user.planExpiresAt) - new Date();
       if (diff <= 0) { 
-        setTimeLeft('Expired');
+        clearInterval(timer); 
+        handleLogout(); 
         return; 
       }
       const d = Math.floor(diff / 86400000);
@@ -45,7 +44,7 @@ const StoreDashboard = () => {
       setTimeLeft(`${d}d ${h}h ${m}m ${s}s`);
     }, 1000);
 
-    fetch(getApiUrl('/api/store/stats'), {
+    fetch('http://localhost:5000/api/store/stats', {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     })
     .then(r => r.json())
@@ -62,7 +61,7 @@ const StoreDashboard = () => {
   };
 
   const activeLabel = navItems.find(item => item.path === location.pathname)?.label || 'Dashboard';
-  const avatarSrc = getUploadUrl(user.profilePic);
+  const avatarSrc = user.profilePic ? `http://localhost:5000${user.profilePic}` : null;
 
   return (
     <div className="flex h-screen w-full bg-slate-950 overflow-hidden text-slate-200">

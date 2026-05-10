@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Store = require('../models/Store');
 const Customer = require('../models/Customer');
-const Contact = require('../models/Contact');
 const { requireAuth } = require('../middleware/auth');
 
 // List all stores
@@ -70,16 +69,6 @@ router.get('/customers', requireAuth('admin'), async (req, res) => {
   try {
     const customers = await Customer.find().populate('reportedBy', 'name');
     res.json(customers);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// View all contact messages
-router.get('/messages', requireAuth('admin'), async (req, res) => {
-  try {
-    const messages = await Contact.find().sort({ createdAt: -1 });
-    res.json(messages);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

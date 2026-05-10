@@ -34,6 +34,9 @@ router.post('/store/login', async (req, res) => {
     if (!store) return res.status(400).json({ error: 'Invalid credentials' });
 
     if (store.status === 'banned') return res.status(403).json({ error: 'Your account is banned. Contact Admin.' });
+    if (store.planExpiresAt && new Date() > store.planExpiresAt) {
+      return res.status(403).json({ error: 'Your plan has expired. Please purchase a plan.' });
+    }
 
     const isMatch = await bcrypt.compare(password, store.password);
     if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });

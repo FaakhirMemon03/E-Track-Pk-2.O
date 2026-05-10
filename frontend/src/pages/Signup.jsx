@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { User, Mail, Lock, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { User, Mail, Lock, ArrowRight } from 'lucide-react';
 import logo from '../assets/logo.png';
-import { getApiUrl } from '../api';
 
 const Signup = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
@@ -13,7 +12,7 @@ const Signup = () => {
     e.preventDefault();
     setMsg({ text: '', type: '' });
     try {
-      const res = await fetch(getApiUrl('/api/auth/store/signup'), {
+      const res = await fetch('http://localhost:5000/api/auth/store/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

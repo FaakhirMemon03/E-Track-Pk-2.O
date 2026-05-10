@@ -2,89 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Shield, Zap, TrendingDown, MessageCircle, AlertCircle, PhoneOff, XCircle, DollarSign, CheckCircle, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
-import { getApiUrl } from '../api';
-
-const ContactForm = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [status, setStatus] = useState({ text: '', type: '' });
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const res = await fetch(getApiUrl('/api/public/contact'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setStatus({ text: data.message, type: 'success' });
-        setFormData({ name: '', email: '', message: '' });
-      } else {
-        setStatus({ text: data.error, type: 'error' });
-      }
-    } catch (err) {
-      setStatus({ text: 'Could not send message', type: 'error' });
-    }
-    setLoading(false);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {status.text && (
-        <div className={`p-4 rounded-xl text-sm font-bold ${status.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
-          {status.text}
-        </div>
-      )}
-      <div className="grid md:grid-cols-2 gap-6">
-        <input 
-          type="text" 
-          placeholder="Name" 
-          className="input-field" 
-          required 
-          value={formData.name}
-          onChange={e => setFormData({...formData, name: e.target.value})}
-        />
-        <input 
-          type="email" 
-          placeholder="Store Email" 
-          className="input-field" 
-          required 
-          value={formData.email}
-          onChange={e => setFormData({...formData, email: e.target.value})}
-        />
-      </div>
-      <textarea 
-        placeholder="Tell us about your store's return issues..." 
-        rows="4" 
-        className="input-field" 
-        required
-        value={formData.message}
-        onChange={e => setFormData({...formData, message: e.target.value})}
-      ></textarea>
-      <button className="btn-primary w-full py-4 text-lg disabled:opacity-50" disabled={loading}>
-        {loading ? 'Sending...' : 'Send Message'}
-      </button>
-    </form>
-  );
-};
 
 const LandingPage = () => {
   const [topStore, setTopStore] = useState({ name: "E-Track Hero", count: 0, joined: new Date() });
   const [stats, setStats] = useState({ totalReports: 0, totalStores: 0 });
 
   useEffect(() => {
-    fetch(getApiUrl('/api/public/top-protector'))
+    fetch('http://localhost:5000/api/public/top-protector')
       .then(r => r.json())
       .then(data => { if (data && !data.error) setTopStore(data); });
 
-    fetch(getApiUrl('/api/public/stats'))
+    fetch('http://localhost:5000/api/public/stats')
       .then(r => r.json())
       .then(data => { if (data && !data.error) setStats(data); });
   }, []);
-
   return (
     <div className="bg-slate-950 text-white selection:bg-indigo-500/30">
       {/* Hero Section */}
@@ -252,7 +183,7 @@ const LandingPage = () => {
               { name: "Professional", price: "25,000", duration: "6 Months", features: ["Everything in Starter", "Advanced Insights", "Bulk Search"], btn: "Most Popular", featured: true },
               { name: "Enterprise", price: "50,000", duration: "1 Year", features: ["Everything in Prof", "Account Manager", "API Access"], btn: "Buy Now" }
             ].map((plan, i) => (
-              <div key={i} className={`glass p-10 rounded-[32px] flex flex-col relative ${plan.featured ? 'border-indigo-500 bg-indigo-500/5' : 'border-white/5'}`}>
+              <div key={i} className={`glass p-10 rounded-[32px] flex flex-col relative ${plan.featured ? 'border-indigo-500/50 bg-indigo-500/5' : ''}`}>
                 {plan.featured && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-500 text-white px-4 py-1 rounded-full text-[10px] font-black tracking-widest">MOST POPULAR</div>}
                 <h3 className="text-lg font-bold mb-8 uppercase tracking-widest text-slate-400">{plan.name}</h3>
                 <div className="flex items-baseline gap-2 mb-2">
@@ -282,7 +213,14 @@ const LandingPage = () => {
               <h2 className="text-4xl lg:text-5xl font-black mb-6 leading-tight">Ready to protect your store?</h2>
               <p className="text-xl text-slate-400">Fill out the form and our team will get back to you within 24 hours.</p>
             </div>
-            <ContactForm />
+            <form className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <input type="text" placeholder="Name" className="input-field" required />
+                <input type="email" placeholder="Store Email" className="input-field" required />
+              </div>
+              <textarea placeholder="Tell us about your store's return issues..." rows="4" className="input-field" required></textarea>
+              <button className="btn-primary w-full py-4 text-lg">Send Message</button>
+            </form>
           </div>
         </div>
       </section>

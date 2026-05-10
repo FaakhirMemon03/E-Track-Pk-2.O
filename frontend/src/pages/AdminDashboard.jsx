@@ -8,16 +8,14 @@ import {
 import StoreManagement from '../components/admin/StoreManagement';
 import BlacklistMonitor from '../components/admin/BlacklistMonitor';
 import AdminProfile from '../components/admin/AdminProfile';
-import InquiryInbox from '../components/admin/InquiryInbox';
 import Chat from '../components/Chat';
 import logo from '../assets/logo.png';
 
 const adminNavItems = [
   { icon: <LayoutGrid size={20} />,   label: "Overview",         path: "/admin" },
-  { icon: <Users size={20} />,        label: "Store Directory",  path: "/admin/stores" },
+  { icon: <Users size={20} />,        label: "Manage Stores",    path: "/admin/stores" },
   { icon: <ShieldCheck size={20} />,  label: "Fraud Monitor",    path: "/admin/monitor" },
-  { icon: <MessageSquare size={20} />, label: "Inquiry Inbox",   path: "/admin/messages" },
-  { icon: <UserCircle size={20} />,   label: "Admin Profile",    path: "/admin/profile" },
+  { icon: <MessageSquare size={20} />, label: "Support Desk",     path: "/admin/chats" },
   { icon: <Settings size={20} />,      label: "Admin Settings",   path: "/admin/settings" },
 ];
 
@@ -129,8 +127,6 @@ const AdminDashboard = () => {
               <Route path="/" element={<AdminOverview />} />
               <Route path="stores" element={<StoreManagement />} />
               <Route path="monitor" element={<BlacklistMonitor />} />
-              <Route path="messages" element={<InquiryInbox />} />
-              <Route path="profile" element={<AdminProfile />} />
               <Route path="chats" element={<ChatList onSelectStore={(id) => navigate(`/admin/chats/${id}`)} />} />
               <Route path="chats/:storeId" element={<Chat user={{ ...admin, currentChatStoreId: window.location.pathname.split('/').pop() }} role="admin" />} />
               <Route path="settings" element={<AdminProfile admin={admin} setAdmin={setAdmin} />} />

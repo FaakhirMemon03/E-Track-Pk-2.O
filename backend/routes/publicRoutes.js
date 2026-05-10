@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Store = require('../models/Store');
 const Customer = require('../models/Customer');
-const Contact = require('../models/Contact');
 
 // Get Top Protector (Store with most reports)
 router.get('/top-protector', async (req, res) => {
@@ -36,21 +35,6 @@ router.get('/stats', async (req, res) => {
     const totalReports = await Customer.countDocuments();
     const totalStores = await Store.countDocuments();
     res.json({ totalReports, totalStores });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Submit Contact Message
-router.post('/contact', async (req, res) => {
-  try {
-    const { name, email, message } = req.body;
-    if (!name || !email || !message) {
-      return res.status(400).json({ error: 'All fields are required' });
-    }
-    const newMessage = new Contact({ name, email, message });
-    await newMessage.save();
-    res.status(201).json({ message: 'Message sent successfully! We will contact you soon.' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

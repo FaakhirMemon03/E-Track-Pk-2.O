@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Lock, Mail, ArrowRight } from 'lucide-react';
 import logo from '../assets/logo.png';
-import { getApiUrl } from '../api';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -17,7 +16,7 @@ const Login = () => {
 
     try {
       // 1. Try Store Login
-      let res = await fetch(getApiUrl('/api/auth/store/login'), {
+      let res = await fetch('http://localhost:5000/api/auth/store/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -26,7 +25,7 @@ const Login = () => {
 
       // 2. If Store Login fails, try Admin Login
       if (!res.ok) {
-        const adminRes = await fetch(getApiUrl('/api/auth/admin/login'), {
+        const adminRes = await fetch('http://localhost:5000/api/auth/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
