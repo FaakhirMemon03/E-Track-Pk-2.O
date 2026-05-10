@@ -112,7 +112,6 @@ const MyCustomers = () => {
         </div>
       </div>
 
-      {/* Search & Filter */}
       <div className="glass p-6 rounded-[32px] border-white/5 flex flex-col md:flex-row gap-6 items-center">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
@@ -129,7 +128,6 @@ const MyCustomers = () => {
         </div>
       </div>
 
-      {/* Customer List */}
       <div className="grid gap-4">
         {loading ? (
           <div className="flex justify-center py-20">
@@ -170,17 +168,60 @@ const MyCustomers = () => {
               </div>
 
               <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+                <button 
+                  onClick={() => { setSelectedForReport(customer); setShowReportModal(true); }}
+                  className="px-4 py-2 rounded-xl bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest border border-red-500/20 hover:bg-red-500 hover:text-white transition-all"
+                >
+                  Report Fraud
+                </button>
                 <div className="px-4 py-2 rounded-xl bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-widest border border-indigo-500/20">
                   {customer.category}
                 </div>
-                <button className="p-3 rounded-xl bg-white/5 border border-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all">
-                  <MoreVertical size={18} />
+                <button 
+                  onClick={() => deleteCustomer(customer._id)}
+                  className="p-3 rounded-xl bg-white/5 border border-white/5 text-slate-500 hover:text-white hover:bg-red-500 transition-all"
+                >
+                  <Trash2 size={18} />
                 </button>
               </div>
             </div>
           ))
         )}
       </div>
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+          <div className="glass p-10 rounded-[40px] w-full max-w-lg border-red-500/20 animate-fade-up">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20">
+                <ShieldAlert size={24} />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-white">Report to Shared Network</h3>
+                <p className="text-xs text-slate-500">Flagging {selectedForReport?.name}</p>
+              </div>
+            </div>
+            
+            <form onSubmit={handleReportToNetwork} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Reason for Blacklist</label>
+                <textarea 
+                  placeholder="e.g. Returned parcel after 3 attempts..." 
+                  className="input-field min-h-[120px] py-4"
+                  required
+                  value={reportReason}
+                  onChange={e => setReportReason(e.target.value)}
+                ></textarea>
+              </div>
+              <div className="flex gap-4">
+                <button type="button" onClick={() => setShowReportModal(false)} className="flex-1 py-4 rounded-2xl bg-white/5 text-slate-400 font-bold hover:bg-white/10 transition-all">Cancel</button>
+                <button type="submit" className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black shadow-lg shadow-red-500/20 hover:bg-red-600 transition-all">Report & Blacklist</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Add Modal */}
       {showAddModal && (
