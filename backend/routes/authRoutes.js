@@ -114,11 +114,23 @@ router.post('/store/forgot-password', async (req, res) => {
     store.resetPasswordExpire = Date.now() + 3600000; // 1 hour
     await store.save();
 
-    // In real app, send email here. For now, we return it so user can test.
-    res.json({ message: 'Reset code sent to email', code: resetCode });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    // Send Email
+    const sendEmail = require('../utils/sendEmail');
+    const message = `Your password reset code is: ${resetCode}\n\nThis code will expire in 1 hour.`;
+
+    try {
+      await sendEmail({
+        email: store.email,
+        subject: 'E-Track PK: Password Reset Code',
+        message
+      });
+      res.json({ message: 'Reset code sent to email' });
+    } catch (err) {
+      store.resetPasswordToken = undefined;
+      store.resetPasswordExpire = undefined;
+      await store.save();
+      return res.status(500).json({ error: 'Email could not be sent' });
+    }
 });
 
 // Store: Reset Password via Token
