@@ -13,7 +13,7 @@ const Signup = () => {
     e.preventDefault();
     setMsg({ text: '', type: '' });
     try {
-      const res = await fetch('http://localhost:5000/api/auth/store/signup', {
+      const res = await fetch(getApiUrl('/api/auth/store/signup'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
