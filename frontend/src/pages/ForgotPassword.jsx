@@ -14,11 +14,12 @@ const ForgotPassword = () => {
   const handleGetCode = async (e) => {
     e.preventDefault();
     setMsg({ text: '', type: '' });
+    const normalizedEmail = email.trim().toLowerCase();
     try {
       const res = await fetch(`http://localhost:5000/api/auth/store/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email: normalizedEmail })
       });
       const data = await res.json();
       if (res.ok) {
@@ -35,6 +36,8 @@ const ForgotPassword = () => {
   const handleReset = async (e) => {
     e.preventDefault();
     setMsg({ text: '', type: '' });
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedToken = token.trim();
 
     if (newPassword !== confirmPassword) {
       return setMsg({ text: 'Passwords do not match', type: 'error' });
@@ -44,7 +47,7 @@ const ForgotPassword = () => {
       const res = await fetch(`http://localhost:5000/api/auth/store/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, token, newPassword, confirmPassword })
+        body: JSON.stringify({ email: normalizedEmail, token: normalizedToken, newPassword, confirmPassword })
       });
       const data = await res.json();
       if (res.ok) {

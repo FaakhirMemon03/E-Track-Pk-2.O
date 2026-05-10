@@ -105,14 +105,14 @@ router.post('/admin/reset-password', async (req, res) => {
 // Store: Forgot Password (Mock Email Token)
 router.post('/store/forgot-password', async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
     const store = await Store.findOne({ email });
     if (!store) return res.status(404).json({ error: 'Store not found' });
 
     // Generate random 6-digit code
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
-    store.resetPasswordToken = resetCode;
-    store.resetPasswordExpire = Date.now() + 3600000; // 1 hour
+    store.resetPasswordToken = resetCode.trim();
+    store.resetPasswordExpire = new Date(Date.now() + 3600000); // 1 hour
     await store.save();
 
     // Send Email
@@ -139,19 +139,19 @@ router.post('/store/forgot-password', async (req, res) => {
 // Store: Reset Password via Token
 router.post('/store/reset-password', async (req, res) => {
   try {
-    const { email, token, newPassword, confirmPassword } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
+    const token = req.body.token?.trim();
+    const { newPassword, confirmPassword } = req.body;
 
     if (newPassword !== confirmPassword) {
       return res.status(400).json({ error: 'Passwords do not match' });
     }
 
-    const store = await Store.findOne({ 
-      email, 
-      resetPasswordToken: token,
-      resetPasswordExpire: { $gt: Date.now() }
-    });
-
-    if (!store) return res.status(400).json({ error: 'Invalid or expired reset code' });
+    const store = await Store.findOne({ email, resetPasswordToken: token });
+    if (!store) return res.status(400).json({ error: 'Invalid reset code' });
+    if (!store.resetPasswordExpire || store.resetPasswordExpire <= new Date()) {
+      return res.status(400).json({ error: 'Reset code expired. Please request a new code.' });
+    }
 
     store.password = await bcrypt.hash(newPassword, 10);
     store.resetPasswordToken = undefined;
