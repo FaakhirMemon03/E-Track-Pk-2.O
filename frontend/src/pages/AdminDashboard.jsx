@@ -16,6 +16,7 @@ const adminNavItems = [
   { icon: <LayoutGrid size={20} />,   label: "Overview",         path: "/admin" },
   { icon: <Users size={20} />,        label: "Manage Stores",    path: "/admin/stores" },
   { icon: <ShieldCheck size={20} />,  label: "Fraud Monitor",    path: "/admin/monitor" },
+  { icon: <Mail size={20} />,         label: "Inquiries",        path: "/admin/inquiries" },
   { icon: <MessageSquare size={20} />, label: "Support Desk",     path: "/admin/chats" },
   { icon: <Settings size={20} />,      label: "Admin Settings",   path: "/admin/settings" },
 ];
@@ -128,6 +129,7 @@ const AdminDashboard = () => {
               <Route path="/" element={<AdminOverview />} />
               <Route path="stores" element={<StoreManagement />} />
               <Route path="monitor" element={<BlacklistMonitor />} />
+              <Route path="inquiries" element={<ContactMessages />} />
               <Route path="chats" element={<ChatList onSelectStore={(id) => navigate(`/admin/chats/${id}`)} />} />
               <Route path="chats/:storeId" element={<Chat user={{ ...admin, currentChatStoreId: window.location.pathname.split('/').pop() }} role="admin" />} />
               <Route path="settings" element={<AdminProfile admin={admin} setAdmin={setAdmin} />} />
@@ -156,10 +158,16 @@ const AdminOverview = () => {
         });
         const customers = await resCust.json();
 
+        const resContact = await fetch('http://localhost:5000/api/admin/contacts', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const contacts = await resContact.json();
+
         setStats({
           totalStores: stores.length,
           pendingApprovals: stores.filter(s => s.status === 'pending_approval').length,
           totalBlacklisted: customers.length,
+          totalInquiries: contacts.length,
           recentStores: stores.slice(-5).reverse()
         });
       } catch (e) {}
@@ -170,11 +178,12 @@ const AdminOverview = () => {
   return (
     <div className="space-y-12 animate-fade-up">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {[
-          { label: "Total Network Stores", value: stats.totalStores, icon: <Users size={32} />, color: "indigo", sub: "Ecosystem Growth", trend: <TrendingUp size={14} /> },
-          { label: "Pending Approvals", value: stats.pendingApprovals, icon: <Package size={32} />, color: "amber", sub: "Action Required", trend: <AlertCircle size={14} /> },
-          { label: "Blacklisted Records", value: stats.totalBlacklisted, icon: <ShieldAlert size={32} />, color: "red", sub: "Fraud Prevention", trend: <ShieldCheck size={14} /> }
+          { label: "Network Stores", value: stats.totalStores, icon: <Users size={32} />, color: "indigo", sub: "Growth", trend: <TrendingUp size={14} /> },
+          { label: "Pending Plans", value: stats.pendingApprovals, icon: <Package size={32} />, color: "amber", sub: "Action", trend: <AlertCircle size={14} /> },
+          { label: "Blacklisted", value: stats.totalBlacklisted, icon: <ShieldAlert size={32} />, color: "red", sub: "Security", trend: <ShieldCheck size={14} /> },
+          { label: "New Inquiries", value: stats.totalInquiries, icon: <Mail size={32} />, color: "emerald", sub: "Leads", trend: <CheckCircle size={14} /> }
         ].map((stat, i) => (
           <div key={i} className={`glass p-10 rounded-[40px] border-white/5 relative overflow-hidden group hover:bg-white/10 transition-all duration-500 hover:-translate-y-1`}>
             <div className={`absolute top-0 right-0 w-40 h-40 bg-${stat.color}-500/10 blur-[80px] rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700`}></div>
