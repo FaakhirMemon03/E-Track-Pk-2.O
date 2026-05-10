@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Users, UserPlus, FileSpreadsheet, Search, Filter, Mail, Phone, MapPin, MoreVertical, Trash2, Upload, CheckCircle } from 'lucide-react';
 
 const MyCustomers = () => {
@@ -54,20 +55,21 @@ const MyCustomers = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/store/my-customers/bulk', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
+      const res = await axios.post('http://localhost:5000/api/store/my-customers/bulk', formData, {
+        headers: { 
+          'Authorization': `Bearer ${token}`
+          // Note: DO NOT set 'Content-Type': 'multipart/form-data' manually. 
+          // Axios/Browser will set it with the correct boundary.
+        }
       });
-      if (res.ok) {
+      
+      if (res.status === 201) {
         fetchCustomers();
         setShowBulkModal(false);
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Import failed');
       }
     } catch (err) {
-      alert('Network error during import');
+      const errorMsg = err.response?.data?.error || 'Import failed. Check file format.';
+      alert(errorMsg);
     }
     setLoading(false);
   };
