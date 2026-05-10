@@ -13,9 +13,10 @@ import logo from '../assets/logo.png';
 
 const adminNavItems = [
   { icon: <LayoutGrid size={20} />,   label: "Overview",         path: "/admin" },
-  { icon: <Users size={20} />,        label: "Manage Stores",    path: "/admin/stores" },
+  { icon: <Users size={20} />,        label: "Store Directory",  path: "/admin/stores" },
   { icon: <ShieldCheck size={20} />,  label: "Fraud Monitor",    path: "/admin/monitor" },
-  { icon: <MessageSquare size={20} />, label: "Support Desk",     path: "/admin/chats" },
+  { icon: <MessageSquare size={20} />, label: "Inquiry Inbox",   path: "/admin/messages" },
+  { icon: <UserCircle size={20} />,   label: "Admin Profile",    path: "/admin/profile" },
   { icon: <Settings size={20} />,      label: "Admin Settings",   path: "/admin/settings" },
 ];
 
