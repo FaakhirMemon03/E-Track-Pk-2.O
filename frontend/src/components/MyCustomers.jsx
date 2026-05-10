@@ -8,7 +8,7 @@ const MyCustomers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
-  const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', email: '', address: '', notes: '' });
+  const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', email: '', address: '', notes: '', category: 'Regular' });
   const [bulkFile, setBulkFile] = useState(null);
   const [status, setStatus] = useState({ text: '', type: '' });
 
@@ -28,19 +28,29 @@ const MyCustomers = () => {
     setLoading(false);
   };
 
+  const deleteCustomer = async (id) => {
+    if (!window.confirm('Are you sure you want to remove this customer from your database?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:5000/api/store/my-customers/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) fetchCustomers();
+    } catch (e) {}
+  };
+
   const handleAddCustomer = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/store/my-customers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(newCustomer)
+      const res = await axios.post('http://localhost:5000/api/store/my-customers', newCustomer, {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (res.ok) {
+      if (res.status === 201) {
         fetchCustomers();
         setShowAddModal(false);
-        setNewCustomer({ name: '', phone: '', email: '', address: '', notes: '' });
+        setNewCustomer({ name: '', phone: '', email: '', address: '', notes: '', category: 'Regular' });
       }
     } catch (e) {}
   };

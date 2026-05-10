@@ -204,6 +204,16 @@ router.post('/my-customers', requireAuth('store'), async (req, res) => {
 });
 
 // Bulk Upload My Customers
+// Delete Personal Customer
+router.delete('/my-customers/:id', requireAuth('store'), async (req, res) => {
+  try {
+    await StoreCustomer.findOneAndDelete({ _id: req.params.id, storeId: req.user._id });
+    res.json({ message: 'Customer removed' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Bulk Upload Handler Logic
 const bulkUploadCustomers = async (req, res) => {
   try {
