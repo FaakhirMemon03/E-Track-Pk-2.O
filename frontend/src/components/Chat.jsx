@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
-import { Send, MessageCircle, Shield, User, Clock } from 'lucide-react';
+import { Send, MessageCircle, User, Clock } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 const Chat = ({ user, role }) => {
   const [messages, setMessages] = useState([]);
@@ -95,7 +96,9 @@ const Chat = ({ user, role }) => {
             <div key={i} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-fade-in`}>
               <div className={`flex flex-col gap-2 max-w-[75%] ${isMe ? 'items-end' : 'items-start'}`}>
                 <div className={`flex items-center gap-2 mb-1`}>
-                   {!isMe && <div className="w-5 h-5 rounded-md bg-indigo-500 flex items-center justify-center text-[8px] font-black text-white"><Shield size={10} /></div>}
+                   {!isMe && <div className="w-5 h-5 rounded-md bg-white/10 flex items-center justify-center p-0.5 border border-white/10 shadow-sm overflow-hidden">
+                     <img src={logo} alt="Logo" className="w-full h-full object-contain" />
+                   </div>}
                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{isMe ? 'You' : 'Support Agent'}</span>
                    {isMe && <div className="w-5 h-5 rounded-md bg-slate-800 flex items-center justify-center text-[8px] font-black text-slate-400"><User size={10} /></div>}
                 </div>

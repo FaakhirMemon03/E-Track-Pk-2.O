@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, User, Mail, Lock, ArrowRight } from 'lucide-react';
+import { User, Mail, Lock, ArrowRight } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 const Signup = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
@@ -32,8 +33,8 @@ const Signup = () => {
     <div className="min-h-screen flex items-center justify-center p-6 bg-slate-950">
       <div className="glass p-8 md:p-12 rounded-[32px] w-full max-w-md animate-fade-in">
         <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-indigo-400">
-            <Shield size={32} />
+          <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center p-3 mb-8 border border-white/10 shadow-2xl mx-auto">
+            <img src={logo} alt="Logo" className="w-full h-full object-contain" />
           </div>
           <h2 className="text-3xl font-black text-white mb-2">Create Account</h2>
           <p className="text-slate-400">Join the network and start protecting your store</p>

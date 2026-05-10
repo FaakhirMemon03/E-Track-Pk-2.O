@@ -10,6 +10,7 @@ import BlacklistReport from '../components/BlacklistReport';
 import Subscription from '../components/Subscription';
 import Chat from '../components/Chat';
 import Profile from '../components/Profile';
+import logo from '../assets/logo.png';
 
 const navItems = [
   { icon: <LayoutDashboard size={20} />, label: 'Dashboard',      path: '/dashboard' },
@@ -68,8 +69,8 @@ const StoreDashboard = () => {
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-900/80 backdrop-blur-2xl border-r border-white/5 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full p-6">
           <div className="flex items-center gap-3 mb-12 px-2">
-            <div className="w-10 h-10 bg-linear-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-              <Shield size={22} fill="white" />
+            <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center p-1.5 border border-white/10 shadow-lg">
+              <img src={logo} alt="Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-xl font-black bg-linear-to-r from-white to-slate-400 bg-clip-text text-transparent">E-Track PK</span>
           </div>

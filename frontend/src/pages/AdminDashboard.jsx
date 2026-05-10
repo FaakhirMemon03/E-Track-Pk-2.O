@@ -9,6 +9,7 @@ import StoreManagement from '../components/admin/StoreManagement';
 import BlacklistMonitor from '../components/admin/BlacklistMonitor';
 import AdminProfile from '../components/admin/AdminProfile';
 import Chat from '../components/Chat';
+import logo from '../assets/logo.png';
 
 const adminNavItems = [
   { icon: <LayoutGrid size={20} />,   label: "Overview",         path: "/admin" },
@@ -42,8 +43,8 @@ const AdminDashboard = () => {
       {/* Sidebar */}
       <aside className="w-80 bg-slate-900/40 backdrop-blur-3xl border-r border-white/5 flex flex-col p-8 hidden lg:flex relative z-50">
         <div className="flex items-center gap-4 mb-16 px-2">
-          <div className="w-12 h-12 bg-linear-to-br from-indigo-500 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-indigo-500/40 ring-1 ring-white/20">
-            <Shield size={26} fill="white" className="drop-shadow-lg" />
+          <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center p-2 ring-1 ring-white/10 shadow-2xl">
+             <img src={logo} alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <span className="text-xl font-black bg-linear-to-r from-white to-slate-400 bg-clip-text text-transparent uppercase tracking-tighter block leading-none">E-Track</span>
