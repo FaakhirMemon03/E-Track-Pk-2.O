@@ -157,4 +157,16 @@ router.get('/orders', requireAuth('store'), async (req, res) => {
   }
 });
 
+// Get customer delivery history (Across all stores - for risk assessment)
+router.get('/check-delivery/:phone', requireAuth('store'), async (req, res) => {
+  try {
+    const { phone } = req.params;
+    const deliveredCount = await Order.countDocuments({ customerPhone: phone, status: 'Delivered' });
+    const returnedCount = await Order.countDocuments({ customerPhone: phone, status: 'Returned' });
+    res.json({ delivered: deliveredCount, returned: returnedCount });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
