@@ -44,10 +44,14 @@ const MyCustomers = () => {
     } catch (e) {}
   };
 
-  const handleBulkUpload = async () => {
-    if (!bulkFile) return;
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setLoading(true);
     const formData = new FormData();
-    formData.append('file', bulkFile);
+    formData.append('file', file);
+    
     try {
       const token = localStorage.getItem('token');
       const res = await fetch('http://localhost:5000/api/store/my-customers/bulk', {
@@ -58,9 +62,14 @@ const MyCustomers = () => {
       if (res.ok) {
         fetchCustomers();
         setShowBulkModal(false);
-        setBulkFile(null);
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Import failed');
       }
-    } catch (e) {}
+    } catch (err) {
+      alert('Network error during import');
+    }
+    setLoading(false);
   };
 
   const filteredCustomers = customers.filter(c => 
