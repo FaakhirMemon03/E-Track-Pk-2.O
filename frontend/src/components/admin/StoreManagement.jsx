@@ -33,6 +33,16 @@ const StoreManagement = () => {
 
   useEffect(() => { fetchStores(); }, []);
 
+  useEffect(() => {
+    if (activeModal) {
+      const plan = activeModal.requestedPlan && activeModal.requestedPlan !== 'none' ? activeModal.requestedPlan : '1month';
+      let months = 1;
+      if (plan === '6month') months = 6;
+      else if (plan === '1year') months = 12;
+      setActivationData({ plan, months });
+    }
+  }, [activeModal]);
+
   const updateStatus = async (id, status) => {
     const token = localStorage.getItem('token');
     await fetch(`http://localhost:5000/api/admin/stores/${id}/status`, {
@@ -135,9 +145,9 @@ const StoreManagement = () => {
                       <div className="flex items-center justify-end gap-3">
                         <button 
                           onClick={() => setActiveModal(store)} 
-                          className="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
+                          className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg transition-all active:scale-95 ${store.status === 'pending_approval' ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20' : 'bg-indigo-500 hover:bg-indigo-600 text-white shadow-indigo-500/20'}`}
                         >
-                          Modify Plan
+                          {store.status === 'pending_approval' ? 'Verify Payment' : 'Modify Plan'}
                         </button>
                         <button 
                           onClick={() => updateStatus(store._id, store.status === 'active' ? 'banned' : 'active')} 
@@ -170,9 +180,17 @@ const StoreManagement = () => {
             </div>
 
             {/* Payment Verification Section */}
-            {(activeModal.paymentTransactionId || activeModal.paymentScreenshot) && (
+            {(activeModal.paymentTransactionId || activeModal.paymentScreenshot || activeModal.requestedPlan) && (
               <div className="p-6 bg-indigo-500/5 rounded-[24px] border border-indigo-500/10 space-y-4">
                 <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Verification Details</p>
+                
+                {activeModal.requestedPlan && activeModal.requestedPlan !== 'none' && (
+                  <div className="flex justify-between items-center bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20">
+                    <span className="text-xs text-indigo-300">Requested Plan</span>
+                    <span className="text-xs font-black text-white uppercase tracking-widest">{planMapping[activeModal.requestedPlan]}</span>
+                  </div>
+                )}
+
                 {activeModal.paymentTransactionId && (
                   <div className="flex justify-between items-center bg-black/20 p-3 rounded-xl border border-white/5">
                     <span className="text-xs text-slate-400">Transaction ID</span>
@@ -189,7 +207,7 @@ const StoreManagement = () => {
                       className="block group relative rounded-xl overflow-hidden border border-white/10"
                     >
                       <img 
-                        src={`http://localhost:5000${activeModal.paymentScreenshot}`} 
+                         src={`http://localhost:5000${activeModal.paymentScreenshot}`} 
                         alt="Proof" 
                         className="w-full h-40 object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
                       />
@@ -208,7 +226,13 @@ const StoreManagement = () => {
                 <select 
                   className="input-field h-12"
                   value={activationData.plan}
-                  onChange={(e) => setActivationData({...activationData, plan: e.target.value})}
+                  onChange={(e) => {
+                    const plan = e.target.value;
+                    let months = 1;
+                    if (plan === '6month') months = 6;
+                    else if (plan === '1year') months = 12;
+                    setActivationData({ plan, months });
+                  }}
                 >
                   <option value="1month">Starter Plan - PKR 15,000</option>
                   <option value="6month">Professional - PKR 25,000</option>
