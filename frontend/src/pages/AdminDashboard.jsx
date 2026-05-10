@@ -154,17 +154,10 @@ const AdminOverview = () => {
         });
         const customers = await resCust.json();
 
-        // Fetch Total Orders for stats
-        const resOrders = await fetch('http://localhost:5000/api/store/orders', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const orders = await resOrders.json();
-
         setStats({
           totalStores: stores.length,
           pendingApprovals: stores.filter(s => s.status === 'pending_approval').length,
           totalBlacklisted: customers.length,
-          totalDeliveries: orders.filter(o => o.status === 'Delivered').length,
           recentStores: stores.slice(-5).reverse()
         });
       } catch (e) {}

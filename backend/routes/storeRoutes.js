@@ -126,47 +126,4 @@ router.put('/profile', requireAuth('store'), upload.single('profilePic'), async 
   }
 });
 
-const Order = require('../models/Order');
-
-// Log/Update Order Status
-router.post('/orders', requireAuth('store'), async (req, res) => {
-  try {
-    const { customerPhone, customerEmail, orderId, status, amount } = req.body;
-    const order = new Order({
-      customerPhone,
-      customerEmail,
-      orderId,
-      status,
-      amount,
-      storeId: req.user._id
-    });
-    await order.save();
-    res.status(201).json({ message: 'Order status logged successfully', order });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get Store Order History
-router.get('/orders', requireAuth('store'), async (req, res) => {
-  try {
-    const orders = await Order.find({ storeId: req.user._id }).sort({ createdAt: -1 });
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get customer delivery history (Across all stores - for risk assessment)
-router.get('/check-delivery/:phone', requireAuth('store'), async (req, res) => {
-  try {
-    const { phone } = req.params;
-    const deliveredCount = await Order.countDocuments({ customerPhone: phone, status: 'Delivered' });
-    const returnedCount = await Order.countDocuments({ customerPhone: phone, status: 'Returned' });
-    res.json({ delivered: deliveredCount, returned: returnedCount });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 module.exports = router;

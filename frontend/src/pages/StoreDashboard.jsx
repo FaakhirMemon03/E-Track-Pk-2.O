@@ -8,7 +8,6 @@ import {
 import CustomerLookup from '../components/CustomerLookup';
 import BlacklistReport from '../components/BlacklistReport';
 import Subscription from '../components/Subscription';
-import OrderStatus from '../components/OrderStatus';
 import Chat from '../components/Chat';
 import Profile from '../components/Profile';
 
@@ -16,7 +15,6 @@ const navItems = [
   { icon: <LayoutDashboard size={20} />, label: 'Dashboard',      path: '/dashboard' },
   { icon: <Search size={20} />,          label: 'Risk Lookup',    path: '/dashboard/lookup' },
   { icon: <ShieldAlert size={20} />,     label: 'Report Fraud',   path: '/dashboard/report' },
-  { icon: <Clock size={20} />,          label: 'Order Status',   path: '/dashboard/orders' },
   { icon: <CreditCard size={20} />,      label: 'Subscription',   path: '/dashboard/subscription' },
   { icon: <MessageSquare size={20} />,   label: 'Live Support',   path: '/dashboard/support' },
   { icon: <User size={20} />,            label: 'Profile',        path: '/dashboard/profile' },
@@ -139,7 +137,6 @@ const StoreDashboard = () => {
             <Route path="/"            element={<Overview stats={stats} user={user} />} />
             <Route path="lookup"       element={<CustomerLookup />} />
             <Route path="report"       element={<BlacklistReport />} />
-            <Route path="orders"       element={<OrderStatus />} />
             <Route path="subscription" element={<Subscription />} />
             <Route path="support"      element={<Chat user={user} role="store" />} />
             <Route path="profile"      element={<Profile user={user} setUser={setUser} />} />
