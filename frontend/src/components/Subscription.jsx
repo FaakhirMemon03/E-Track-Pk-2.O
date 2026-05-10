@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { CreditCard, CheckCircle, Upload, Smartphone, User, Landmark, HelpCircle, FileText } from 'lucide-react';
 
 const plans = [
-  { id: '1month', label: '1 Month', price: '999', desc: 'Trial period', icon: <Smartphone size={24} /> },
-  { id: '6month', label: '6 Months', price: '4,999', desc: 'Save 17%', badge: 'POPULAR', icon: <Landmark size={24} /> },
-  { id: '1year', label: '1 Year', price: '8,999', desc: 'Save 25%', badge: 'BEST VALUE', icon: <CreditCard size={24} /> },
+  { id: '1month', label: 'Starter Plan', price: '15,000', desc: '1 Month access', icon: <Smartphone size={24} /> },
+  { id: '6month', label: 'Professional', price: '25,000', desc: '6 Months access', badge: 'POPULAR', icon: <Landmark size={24} /> },
+  { id: '1year', label: 'Enterprise', price: '50,000', desc: '1 Year access', badge: 'BEST VALUE', icon: <CreditCard size={24} /> },
 ];
 
 const Subscription = () => {

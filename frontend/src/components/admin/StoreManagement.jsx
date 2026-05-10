@@ -210,9 +210,9 @@ const StoreManagement = () => {
                   value={activationData.plan}
                   onChange={(e) => setActivationData({...activationData, plan: e.target.value})}
                 >
-                  <option value="1month">Starter Plan - PKR 999</option>
-                  <option value="6month">Professional - PKR 4,999</option>
-                  <option value="1year">Enterprise - PKR 8,999</option>
+                  <option value="1month">Starter Plan - PKR 15,000</option>
+                  <option value="6month">Professional - PKR 25,000</option>
+                  <option value="1year">Enterprise - PKR 50,000</option>
                 </select>
               </div>
               <div className="space-y-2">
