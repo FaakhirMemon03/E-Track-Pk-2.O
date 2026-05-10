@@ -29,7 +29,7 @@ const Chat = ({ user, role }) => {
     });
 
     return () => socketRef.current.disconnect();
-  }, [user.id, role]);
+  }, [user.id, user.currentChatStoreId, role]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
