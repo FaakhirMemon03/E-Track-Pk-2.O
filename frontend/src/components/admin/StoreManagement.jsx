@@ -16,7 +16,7 @@ const planMapping = {
 const StoreManagement = () => {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeModal, setActiveModal] = useState(null); // { id, name }
+  const [activeModal, setActiveModal] = useState(null); // Full store object
   const [activationData, setActivationData] = useState({ plan: '1month', months: 1 });
 
   const fetchStores = async () => {
@@ -46,7 +46,7 @@ const StoreManagement = () => {
   const handleActivate = async () => {
     if (!activeModal) return;
     const token = localStorage.getItem('token');
-    await fetch(`http://localhost:5000/api/admin/stores/${activeModal.id}/activate`, {
+    await fetch(`http://localhost:5000/api/admin/stores/${activeModal._id}/activate`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ plan: activationData.plan, durationMonths: activationData.months })
@@ -131,6 +131,30 @@ const StoreManagement = () => {
                         {store.status.replace('_', ' ')}
                       </span>
                     </td>
+                    <td className="px-8 py-8">
+                      <div className="flex items-center justify-end gap-3">
+                        <button 
+                          onClick={() => setActiveModal(store)} 
+                          className="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
+                        >
+                          Modify Plan
+                        </button>
+                        <button 
+                          onClick={() => updateStatus(store._id, store.status === 'active' ? 'banned' : 'active')} 
+                          className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95 ${store.status === 'active' ? 'border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white' : 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white'}`}
+                        >
+                          {store.status === 'active' ? 'Ban Store' : 'Reinstate'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
       {/* Activation Modal Overlay */}
       {activeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
