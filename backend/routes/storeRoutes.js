@@ -232,10 +232,15 @@ router.post('/my-customers/bulk', requireAuth('store'), upload.single('file'), a
       error: 'No valid records found. Please ensure your Excel has columns like Name, Phone, and Email.' 
     });
 
-    // Use bulkWrite for upsert or just insertMany
-    await StoreCustomer.insertMany(records, { ordered: false }); 
+    // Use bulkWrite for upsert or just insertMany with ordered false to skip duplicates
+    try {
+      await StoreCustomer.insertMany(records, { ordered: false }); 
+    } catch (bulkError) {
+      // Ignore duplicate key errors (11000)
+      if (bulkError.code !== 11000) throw bulkError;
+    }
 
-    res.status(201).json({ message: `${records.length} customers imported successfully.` });
+    res.status(201).json({ message: `${records.length} customers processed. Duplicates were automatically skipped.` });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
