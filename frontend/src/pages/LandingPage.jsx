@@ -236,13 +236,43 @@ const LandingPage = () => {
               <h2 className="text-4xl lg:text-5xl font-black mb-6 leading-tight">Ready to protect your store?</h2>
               <p className="text-xl text-slate-400">Fill out the form and our team will get back to you within 24 hours.</p>
             </div>
-            <form className="space-y-6">
+            <form onSubmit={handleContactSubmit} className="space-y-6">
+              {contactStatus.text && (
+                <div className={`p-4 rounded-xl text-xs font-bold uppercase tracking-widest ${
+                  contactStatus.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 
+                  contactStatus.type === 'error' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 
+                  'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+                }`}>
+                  {contactStatus.text}
+                </div>
+              )}
               <div className="grid md:grid-cols-2 gap-6">
-                <input type="text" placeholder="Name" className="input-field" required />
-                <input type="email" placeholder="Store Email" className="input-field" required />
+                <input 
+                  type="text" 
+                  placeholder="Name" 
+                  className="input-field" 
+                  required 
+                  value={contactForm.name}
+                  onChange={e => setContactForm({...contactForm, name: e.target.value})}
+                />
+                <input 
+                  type="email" 
+                  placeholder="Store Email" 
+                  className="input-field" 
+                  required 
+                  value={contactForm.email}
+                  onChange={e => setContactForm({...contactForm, email: e.target.value})}
+                />
               </div>
-              <textarea placeholder="Tell us about your store's return issues..." rows="4" className="input-field" required></textarea>
-              <button className="btn-primary w-full py-4 text-lg">Send Message</button>
+              <textarea 
+                placeholder="Tell us about your store's return issues..." 
+                rows="4" 
+                className="input-field" 
+                required
+                value={contactForm.message}
+                onChange={e => setContactForm({...contactForm, message: e.target.value})}
+              ></textarea>
+              <button type="submit" className="btn-primary w-full py-4 text-lg">Send Message</button>
             </form>
           </div>
         </div>
