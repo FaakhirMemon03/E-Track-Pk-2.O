@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Users, ShieldCheck, Settings, MessageSquare, LogOut, 
-  Shield, Bell, LayoutGrid, Activity, ChevronRight, UserCircle 
+  Shield, Bell, LayoutGrid, Activity, ChevronRight, UserCircle,
+  TrendingUp, AlertCircle, CheckCircle, Package
 } from 'lucide-react';
 import StoreManagement from '../components/admin/StoreManagement';
 import BlacklistMonitor from '../components/admin/BlacklistMonitor';
@@ -10,9 +11,10 @@ import AdminProfile from '../components/admin/AdminProfile';
 import Chat from '../components/Chat';
 
 const adminNavItems = [
-  { icon: <LayoutGrid size={20} />,   label: "Manage Stores",    path: "/admin" },
-  { icon: <ShieldCheck size={20} />, label: "Blacklist Monitor", path: "/admin/monitor" },
-  { icon: <MessageSquare size={20} />, label: "Support Chats",    path: "/admin/chats" },
+  { icon: <LayoutGrid size={20} />,   label: "Overview",         path: "/admin" },
+  { icon: <Users size={20} />,        label: "Manage Stores",    path: "/admin/stores" },
+  { icon: <ShieldCheck size={20} />,  label: "Fraud Monitor",    path: "/admin/monitor" },
+  { icon: <MessageSquare size={20} />, label: "Support Desk",     path: "/admin/chats" },
   { icon: <Settings size={20} />,      label: "Admin Settings",   path: "/admin/settings" },
 ];
 
@@ -27,7 +29,7 @@ const AdminDashboard = () => {
     navigate('/login');
   };
 
-  const activeLabel = adminNavItems.find(item => item.path === location.pathname)?.label || 'Admin Panel';
+  const activeLabel = adminNavItems.find(item => item.path === location.pathname)?.label || 'Admin Control';
 
   return (
     <div className="flex h-screen w-full bg-slate-950 overflow-hidden text-slate-200">
@@ -84,13 +86,122 @@ const AdminDashboard = () => {
 
         <main className="flex-1 overflow-y-auto p-8 custom-scrollbar">
           <Routes>
-            <Route path="/" element={<StoreManagement />} />
-            <Route path="monitor" element={<BlacklistMonitor />} />
-            <Route path="chats" element={<ChatList onSelectStore={(id) => navigate(`chats/${id}`)} />} />
-            <Route path="chats/:storeId" element={<Chat user={{ ...admin, currentChatStoreId: window.location.pathname.split('/').pop() }} role="admin" />} />
-            <Route path="settings" element={<AdminProfile admin={admin} setAdmin={setAdmin} />} />
+            <Route path="/" element={<AdminOverview />} />
+            <Route path="/stores" element={<StoreManagement />} />
+            <Route path="/monitor" element={<BlacklistMonitor />} />
+            <Route path="/chats" element={<ChatList onSelectStore={(id) => navigate(`chats/${id}`)} />} />
+            <Route path="/chats/:storeId" element={<Chat user={{ ...admin, currentChatStoreId: window.location.pathname.split('/').pop() }} role="admin" />} />
+            <Route path="/settings" element={<AdminProfile admin={admin} setAdmin={setAdmin} />} />
           </Routes>
         </main>
+      </div>
+    </div>
+  );
+};
+
+const AdminOverview = () => {
+  const [stats, setStats] = useState({ totalStores: 0, pendingApprovals: 0, totalBlacklisted: 0, recentStores: [] });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('http://localhost:5000/api/admin/stores', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const stores = await res.json();
+        
+        const resCust = await fetch('http://localhost:5000/api/admin/customers', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const customers = await resCust.json();
+
+        setStats({
+          totalStores: stores.length,
+          pendingApprovals: stores.filter(s => s.status === 'pending_approval').length,
+          totalBlacklisted: customers.length,
+          recentStores: stores.slice(-4).reverse()
+        });
+      } catch (e) {}
+    };
+    fetchStats();
+  }, []);
+
+  return (
+    <div className="max-w-6xl space-y-10 animate-fade-up">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="glass p-8 rounded-[32px] border-white/5 relative overflow-hidden group">
+          <div className="relative z-10">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-4">Total Network Stores</span>
+            <h3 className="text-5xl font-black text-white mb-2">{stats.totalStores}</h3>
+            <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold">
+              <TrendingUp size={14} /> Ecosystem Growth
+            </div>
+          </div>
+          <Users size={80} className="absolute -right-4 -bottom-4 text-white/5 group-hover:text-indigo-500/10 transition-colors" />
+        </div>
+
+        <div className="glass p-8 rounded-[32px] border-white/5 relative overflow-hidden group border-amber-500/20">
+          <div className="relative z-10">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-4">Pending Approvals</span>
+            <h3 className="text-5xl font-black text-amber-400 mb-2">{stats.pendingApprovals}</h3>
+            <div className="flex items-center gap-2 text-amber-500/80 text-xs font-bold">
+              <AlertCircle size={14} /> Activation Required
+            </div>
+          </div>
+          <Package size={80} className="absolute -right-4 -bottom-4 text-white/5 group-hover:text-amber-500/10 transition-colors" />
+        </div>
+
+        <div className="glass p-8 rounded-[32px] border-white/5 relative overflow-hidden group border-red-500/20">
+          <div className="relative z-10">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-4">Blacklisted Records</span>
+            <h3 className="text-5xl font-black text-red-500 mb-2">{stats.totalBlacklisted}</h3>
+            <div className="flex items-center gap-2 text-red-400 text-xs font-bold">
+              <ShieldCheck size={14} /> Security Active
+            </div>
+          </div>
+          <ShieldAlert size={80} className="absolute -right-4 -bottom-4 text-white/5 group-hover:text-red-500/10 transition-colors" />
+        </div>
+      </div>
+
+      <div className="glass p-10 rounded-[40px] border-white/5 shadow-2xl relative overflow-hidden">
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
+              <Activity size={24} />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-white tracking-tight">Recent Registrations</h3>
+              <p className="text-slate-400 text-sm">New stores joining the E-Track PK ecosystem.</p>
+            </div>
+          </div>
+          <Link to="/admin/stores" className="text-xs font-black text-indigo-400 uppercase tracking-widest hover:text-white transition-colors">
+            View All Stores
+          </Link>
+        </div>
+
+        <div className="space-y-4">
+          {stats.recentStores.map((store, i) => (
+            <div key={i} className="flex items-center justify-between p-6 bg-white/2 border border-white/5 rounded-2xl hover:bg-white/5 transition-all group">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-indigo-400 font-black group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                  {store.name?.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-bold text-white group-hover:text-indigo-400 transition-colors">{store.name}</p>
+                  <p className="text-xs text-slate-500 font-medium uppercase tracking-widest">{store.email}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-6">
+                <div className="text-right">
+                  <p className="text-xs font-black text-white uppercase tracking-widest">{store.plan}</p>
+                  <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-0.5">Joined {new Date(store.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div className={`w-2.5 h-2.5 rounded-full ${store.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'} shadow-lg shadow-current/20`}></div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
