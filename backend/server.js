@@ -26,6 +26,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/store', require('./routes/storeRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/public', require('./routes/publicRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
 
 // Ensure uploads directory exists
