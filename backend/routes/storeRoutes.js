@@ -126,4 +126,56 @@ router.put('/profile', requireAuth('store'), upload.single('profilePic'), async 
   }
 });
 
+const xlsx = require('xlsx');
+
+// ... existing code ...
+
+// Bulk Report via Excel/CSV
+router.post('/bulk-report', requireAuth('store'), upload.single('file'), async (req, res) => {
+  try {
+    // 1. Check if user has a paid plan
+    const isTrial = req.user.plan === 'trial';
+    const isExpired = req.user.planExpiresAt && new Date() > req.user.planExpiresAt;
+    
+    if (isTrial || isExpired) {
+      return res.status(403).json({ 
+        error: 'Bulk upload is a premium feature. Please upgrade your plan to upload data in bulk.' 
+      });
+    }
+
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    // 2. Parse Excel File
+    const workbook = xlsx.readFile(req.file.path);
+    const sheetName = workbook.SheetNames[0];
+    const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    if (!sheetData.length) {
+      return res.status(400).json({ error: 'Excel sheet is empty' });
+    }
+
+    // 3. Prepare data for insertion
+    const records = sheetData.map(row => ({
+      phone: row.phone || row.Phone || row.PHONE || '',
+      email: row.email || row.Email || row.EMAIL || '',
+      address: row.address || row.Address || row.ADDRESS || '',
+      reason: row.reason || row.Reason || row.REASON || 'Bulk Upload',
+      reportedBy: req.user._id
+    })).filter(r => r.phone || r.email);
+
+    if (!records.length) {
+      return res.status(400).json({ error: 'No valid records found in sheet. Ensure columns are named phone, email, address, reason.' });
+    }
+
+    // 4. Bulk Insert
+    await Customer.insertMany(records);
+
+    res.status(201).json({ 
+      message: `${records.length} customers blacklisted successfully via bulk upload.` 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
