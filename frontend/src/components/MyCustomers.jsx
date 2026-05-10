@@ -224,21 +224,21 @@ const MyCustomers = () => {
             
             <div className="space-y-6">
               <label className="block p-10 border-2 border-dashed border-white/10 rounded-[32px] bg-white/2 hover:border-indigo-500/50 transition-all cursor-pointer">
-                <input type="file" className="hidden" accept=".xlsx, .xls, .csv" onChange={e => setBulkFile(e.target.files[0])} />
-                <Upload size={32} className="mx-auto text-slate-600 mb-4" />
-                <p className="text-xs font-bold text-slate-400">{bulkFile ? bulkFile.name : 'Click to select Excel file'}</p>
+                <input type="file" className="hidden" accept=".xlsx, .xls, .csv" onChange={handleFileChange} />
+                {loading ? (
+                   <div className="flex flex-col items-center gap-4">
+                     <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+                     <p className="text-xs font-black text-indigo-400 uppercase tracking-widest">Processing Data...</p>
+                   </div>
+                ) : (
+                  <>
+                    <Upload size={32} className="mx-auto text-slate-600 mb-4" />
+                    <p className="text-xs font-bold text-slate-400">Click to select Excel file</p>
+                  </>
+                )}
               </label>
 
-              <div className="flex gap-4">
-                <button onClick={() => setShowBulkModal(false)} className="flex-1 py-4 rounded-2xl bg-white/5 text-slate-400 font-bold hover:bg-white/10 transition-all">Cancel</button>
-                <button 
-                  onClick={handleBulkUpload} 
-                  disabled={!bulkFile}
-                  className="flex-1 py-4 rounded-2xl bg-indigo-500 text-white font-black shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-all disabled:opacity-50"
-                >
-                  Start Import
-                </button>
-              </div>
+              <button onClick={() => setShowBulkModal(false)} className="w-full py-4 rounded-2xl bg-white/5 text-slate-400 font-bold hover:bg-white/10 transition-all">Cancel</button>
             </div>
           </div>
         </div>
