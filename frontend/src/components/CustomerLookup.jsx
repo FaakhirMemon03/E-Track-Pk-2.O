@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ShieldAlert, ShieldCheck, ShieldX, Phone, Mail, ArrowRight, History } from 'lucide-react';
+import { Search, ShieldAlert, ShieldCheck, ShieldX, Phone, Mail, ArrowRight, History, CheckCircle, XCircle } from 'lucide-react';
 
 const CustomerLookup = () => {
   const [query, setQuery] = useState({ phone: '', email: '' });
