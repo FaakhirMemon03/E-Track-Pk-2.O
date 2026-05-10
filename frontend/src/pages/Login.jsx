@@ -1,46 +1,61 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Lock, Mail, ArrowRight, UserCog, ShoppingBag } from 'lucide-react';
+import { Shield, Lock, Mail, ArrowRight } from 'lucide-react';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [isAdmin, setIsAdmin] = useState(false);
   const [msg, setMsg] = useState({ text: '', type: '' });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg({ text: '', type: '' });
-    
-    const endpoint = isAdmin 
-      ? 'http://localhost:5000/api/auth/admin/login' 
-      : 'http://localhost:5000/api/auth/store/login';
+    setLoading(true);
 
     try {
-      const res = await fetch(endpoint, {
+      // 1. Try Store Login
+      let res = await fetch('http://localhost:5000/api/auth/store/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      const data = await res.json();
-      
-      if (res.ok) {
-        localStorage.setItem('token', data.token);
-        if (isAdmin) {
-          localStorage.setItem('admin', JSON.stringify(data.admin));
+      let data = await res.json();
+
+      // 2. If Store Login fails, try Admin Login
+      if (!res.ok) {
+        const adminRes = await fetch('http://localhost:5000/api/auth/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        const adminData = await adminRes.json();
+
+        if (adminRes.ok) {
+          localStorage.setItem('token', adminData.token);
+          localStorage.setItem('admin', JSON.stringify(adminData.admin));
           setMsg({ text: 'Admin Login successful! Redirecting...', type: 'success' });
           setTimeout(() => navigate('/admin'), 1500);
+          setLoading(false);
+          return;
         } else {
-          localStorage.setItem('user', JSON.stringify(data.store));
-          setMsg({ text: 'Store Login successful! Redirecting...', type: 'success' });
-          setTimeout(() => navigate('/dashboard'), 1500);
+          // If both fail, show the original store error or a generic one
+          setMsg({ text: data.error || 'Invalid credentials', type: 'error' });
+          setLoading(false);
+          return;
         }
-      } else {
-        setMsg({ text: data.error, type: 'error' });
       }
+
+      // Store Login was successful
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.store));
+      setMsg({ text: 'Login successful! Redirecting...', type: 'success' });
+      setTimeout(() => navigate('/dashboard'), 1500);
+      
     } catch (err) {
       setMsg({ text: 'Could not connect to server', type: 'error' });
     }
+    setLoading(false);
   };
 
   return (
@@ -48,28 +63,12 @@ const Login = () => {
       <div className="glass p-8 md:p-12 rounded-[32px] w-full max-w-md animate-fade-in relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 blur-3xl rounded-full -mr-32 -mt-32"></div>
         
-        <div className="text-center mb-8 relative z-10">
-          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-all duration-500 ${isAdmin ? 'bg-purple-500/10 text-purple-400' : 'bg-indigo-500/10 text-indigo-400'}`}>
-            {isAdmin ? <UserCog size={32} /> : <Shield size={32} />}
+        <div className="text-center mb-10 relative z-10">
+          <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-indigo-400">
+            <Shield size={32} />
           </div>
-          <h2 className="text-3xl font-black text-white mb-2">{isAdmin ? 'Admin Portal' : 'Store Login'}</h2>
-          <p className="text-slate-400">{isAdmin ? 'Authorized access only' : 'Welcome back to E-Track PK'}</p>
-        </div>
-
-        {/* Login Type Toggle */}
-        <div className="flex p-1 bg-white/5 rounded-2xl mb-8 relative z-10 border border-white/5">
-          <button 
-            onClick={() => { setIsAdmin(false); setMsg({text:'', type:''}); }}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-black transition-all ${!isAdmin ? 'bg-indigo-500 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
-          >
-            <ShoppingBag size={14} /> STORE
-          </button>
-          <button 
-            onClick={() => { setIsAdmin(true); setMsg({text:'', type:''}); }}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-black transition-all ${isAdmin ? 'bg-purple-500 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
-          >
-            <UserCog size={14} /> ADMIN
-          </button>
+          <h2 className="text-3xl font-black text-white mb-2">Welcome Back</h2>
+          <p className="text-slate-400">Login to access your secure dashboard</p>
         </div>
 
         {msg.text && (
@@ -80,12 +79,12 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Account Email</label>
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
               <input 
                 type="email" 
-                placeholder={isAdmin ? 'admin@e-track.com' : 'email@store.com'} 
+                placeholder="Enter your email" 
                 className="input-field pl-12" 
                 required 
                 onChange={e => setFormData({...formData, email: e.target.value})} 
@@ -96,7 +95,7 @@ const Login = () => {
           <div className="space-y-2">
             <div className="flex justify-between items-center px-1">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Password</label>
-              {!isAdmin && <Link to="/forgot-password" size={12} className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors font-bold uppercase tracking-tighter">Forgot?</Link>}
+              <Link to="/forgot-password" size={12} className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors font-bold uppercase tracking-tighter">Forgot?</Link>
             </div>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
@@ -110,16 +109,14 @@ const Login = () => {
             </div>
           </div>
 
-          <button type="submit" className={`btn-primary w-full py-4 text-lg group ${isAdmin ? 'from-purple-500 to-purple-600 shadow-purple-500/20' : ''}`}>
-            {isAdmin ? 'Authenticate' : 'Login'} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+          <button type="submit" className="btn-primary w-full py-4 text-lg group shadow-xl" disabled={loading}>
+            {loading ? 'Authenticating...' : 'Login'} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </form>
 
-        {!isAdmin && (
-          <p className="mt-10 text-center text-slate-400 text-sm relative z-10">
-            Don't have an account? <Link to="/signup" className="text-indigo-400 font-bold hover:underline">Signup for free</Link>
-          </p>
-        )}
+        <p className="mt-10 text-center text-slate-400 text-sm relative z-10">
+          Don't have an account? <Link to="/signup" className="text-indigo-400 font-bold hover:underline">Signup for free</Link>
+        </p>
       </div>
     </div>
   );
