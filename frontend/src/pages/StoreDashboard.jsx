@@ -15,6 +15,7 @@ const navItems = [
   { icon: <LayoutDashboard size={20} />, label: 'Dashboard',      path: '/dashboard' },
   { icon: <Search size={20} />,          label: 'Risk Lookup',    path: '/dashboard/lookup' },
   { icon: <ShieldAlert size={20} />,     label: 'Report Fraud',   path: '/dashboard/report' },
+  { icon: <Clock size={20} />,          label: 'Order Status',   path: '/dashboard/orders' },
   { icon: <CreditCard size={20} />,      label: 'Subscription',   path: '/dashboard/subscription' },
   { icon: <MessageSquare size={20} />,   label: 'Live Support',   path: '/dashboard/support' },
   { icon: <User size={20} />,            label: 'Profile',        path: '/dashboard/profile' },
