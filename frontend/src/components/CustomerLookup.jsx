@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ShieldAlert, ShieldCheck, ShieldX, AlertCircle } from 'lucide-react';
+import { Search, ShieldAlert, ShieldCheck, ShieldX, Phone, Mail, ArrowRight, History } from 'lucide-react';
 
 const CustomerLookup = () => {
   const [query, setQuery] = useState({ phone: '', email: '' });
@@ -30,38 +30,72 @@ const CustomerLookup = () => {
   };
 
   const getRiskConfig = (risk) => {
-    if (risk === 'High Risk') return { color: 'var(--danger)', icon: <ShieldX size={48} />, bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.3)' };
-    if (risk === 'Medium Risk') return { color: '#f59e0b', icon: <ShieldAlert size={48} />, bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.3)' };
-    return { color: 'var(--success)', icon: <ShieldCheck size={48} />, bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.3)' };
+    if (risk === 'High Risk') return { 
+      color: 'text-red-400', 
+      icon: <ShieldX size={64} />, 
+      bg: 'bg-red-500/10', 
+      border: 'border-red-500/20',
+      shadow: 'shadow-red-500/10'
+    };
+    if (risk === 'Medium Risk') return { 
+      color: 'text-amber-400', 
+      icon: <ShieldAlert size={64} />, 
+      bg: 'bg-amber-500/10', 
+      border: 'border-amber-500/20',
+      shadow: 'shadow-amber-500/10'
+    };
+    return { 
+      color: 'text-emerald-400', 
+      icon: <ShieldCheck size={64} />, 
+      bg: 'bg-emerald-500/10', 
+      border: 'border-emerald-500/20',
+      shadow: 'shadow-emerald-500/10'
+    };
   };
 
   return (
-    <div className="animate-fade page-section">
+    <div className="max-w-4xl mx-auto space-y-8 animate-fade-up">
       {/* Search Card */}
-      <div className="section-card">
-        <div className="section-title">
-          <Search size={22} className="icon-primary" />
+      <div className="glass p-10 rounded-[32px] border-white/5 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 blur-3xl rounded-full -mr-32 -mt-32"></div>
+        
+        <div className="flex items-center gap-4 mb-8 relative z-10">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
+            <Search size={24} />
+          </div>
           <div>
-            <h3>Customer Risk Lookup</h3>
-            <p>Enter phone or email to check if this customer has been blacklisted by any store.</p>
+            <h3 className="text-2xl font-black text-white tracking-tight">Customer Risk Lookup</h3>
+            <p className="text-slate-400 text-sm">Scan our neural network for fraud history across 500+ stores.</p>
           </div>
         </div>
 
-        {msg.text && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
+        {msg.text && (
+          <div className={`p-4 rounded-xl mb-8 text-sm font-medium animate-fade-in ${msg.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+            {msg.text}
+          </div>
+        )}
 
-        <form onSubmit={handleLookup} className="lookup-form">
-          <input
-            type="text"
-            placeholder="📞  Phone Number (e.g. 03001234567)"
-            onChange={e => setQuery({ ...query, phone: e.target.value })}
-          />
-          <input
-            type="email"
-            placeholder="✉️  Email Address"
-            onChange={e => setQuery({ ...query, email: e.target.value })}
-          />
-          <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Searching...' : 'Search'}
+        <form onSubmit={handleLookup} className="grid md:grid-cols-[1fr_1fr_auto] gap-4 relative z-10">
+          <div className="relative">
+            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+            <input
+              type="text"
+              placeholder="Phone (0300...)"
+              className="input-field pl-12 h-14"
+              onChange={e => setQuery({ ...query, phone: e.target.value })}
+            />
+          </div>
+          <div className="relative">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+            <input
+              type="email"
+              placeholder="Email Address"
+              className="input-field pl-12 h-14"
+              onChange={e => setQuery({ ...query, email: e.target.value })}
+            />
+          </div>
+          <button type="submit" className="btn-primary h-14 px-8 min-w-[140px]" disabled={loading}>
+            {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : 'Analyze'}
           </button>
         </form>
       </div>
@@ -70,32 +104,52 @@ const CustomerLookup = () => {
       {result && (() => {
         const config = getRiskConfig(result.risk);
         return (
-          <div className="section-card animate-fade" style={{ marginTop: '25px' }}>
-            <div className="risk-banner" style={{ background: config.bg, border: `1px solid ${config.border}`, borderRadius: '16px', padding: '40px', textAlign: 'center', marginBottom: '30px' }}>
-              <div style={{ color: config.color, marginBottom: '15px' }}>{config.icon}</div>
-              <div style={{ fontSize: '2rem', fontWeight: '800', color: config.color }}>{result.risk}</div>
-              <p style={{ color: 'var(--text-muted)', marginTop: '10px' }}>
+          <div className="animate-fade-in space-y-6">
+            <div className={`glass p-12 rounded-[40px] text-center border-2 transition-all ${config.bg} ${config.border} ${config.shadow}`}>
+              <div className={`flex justify-center mb-6 animate-bounce-slow ${config.color}`}>{config.icon}</div>
+              <h2 className={`text-5xl font-black mb-4 tracking-tighter ${config.color}`}>{result.risk}</h2>
+              <p className="text-slate-400 font-medium max-w-sm mx-auto leading-relaxed">
                 {result.reports.length === 0
-                  ? 'No reports found. This customer appears safe.'
-                  : `${result.reports.length} report${result.reports.length > 1 ? 's' : ''} found across the platform.`}
+                  ? 'The system has not identified any negative patterns for this customer. Proceed with confidence.'
+                  : `Our database has flagged ${result.reports.length} historical incident${result.reports.length > 1 ? 's' : ''} with this customer.`}
               </p>
             </div>
 
             {result.reports.length > 0 && (
-              <>
-                <h4 style={{ marginBottom: '15px' }}>Report History</h4>
-                <div style={{ maxHeight: '350px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="glass p-10 rounded-[32px] border-white/5 shadow-2xl">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 border border-white/5">
+                    <History size={20} />
+                  </div>
+                  <h4 className="text-xl font-bold text-white tracking-tight">Report History</h4>
+                </div>
+
+                <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                   {result.reports.map((report, i) => (
-                    <div key={i} className="glass report-item">
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <strong style={{ color: 'var(--primary)' }}>Reported by: {report.reportedBy?.name || 'Unknown Store'}</strong>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{new Date(report.createdAt).toLocaleDateString('en-PK')}</span>
+                    <div key={i} className="glass bg-white/2 p-6 rounded-2xl border border-white/5 hover:border-white/10 transition-colors group">
+                      <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-[10px] font-black border border-indigo-500/10">
+                            {report.reportedBy?.name?.charAt(0) || 'S'}
+                          </div>
+                          <span className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors">
+                            {report.reportedBy?.name || 'Authorized Store'}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full">
+                          {new Date(report.createdAt).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </span>
                       </div>
-                      <p style={{ margin: 0, color: 'var(--text-muted)' }}>Reason: <span style={{ color: 'white' }}>{report.reason}</span></p>
+                      <div className="flex items-start gap-3">
+                        <div className="mt-1 text-red-500/50"><ShieldAlert size={14} /></div>
+                        <p className="text-sm text-slate-400 leading-relaxed italic">
+                          "{report.reason}"
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </div>
-              </>
+              </div>
             )}
           </div>
         );

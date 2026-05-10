@@ -3,15 +3,17 @@ import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   return (
-    <nav>
-      <div className="container nav-content">
-        <Link to="/" className="logo">E-Track PK</Link>
-        <ul className="nav-links">
-          <li><a href="#about">About</a></li>
-          <li><a href="#pricing">Pricing</a></li>
-          <li><a href="#contact">Contact</a></li>
-          <li><Link to="/login">Login</Link></li>
-          <li><Link to="/signup" className="btn-primary">Get Started</Link></li>
+    <nav className="fixed top-0 w-full h-20 z-50 flex items-center bg-slate-950/60 backdrop-blur-md border-b border-white/10">
+      <div className="container mx-auto px-6 flex justify-between items-center w-full">
+        <Link to="/" className="text-2xl font-extrabold text-white tracking-tight">
+          E-Track <span className="text-indigo-400">PK</span>
+        </Link>
+        <ul className="hidden md:flex gap-8 items-center list-none">
+          <li><a href="#about" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">About</a></li>
+          <li><a href="#pricing" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Pricing</a></li>
+          <li><a href="#contact" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Contact</a></li>
+          <li><Link to="/login" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Login</Link></li>
+          <li><Link to="/signup" className="btn-primary py-2 px-5">Get Started</Link></li>
         </ul>
       </div>
     </nav>
