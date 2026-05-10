@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Mail, Calendar, Shield, Settings, CheckCircle, XCircle, MoreVertical, Search } from 'lucide-react';
+import { 
+  ShoppingBag, Mail, Calendar, Shield, Settings, 
+  CheckCircle, XCircle, MoreVertical, Search, 
+  AlertCircle, ChevronRight, Package, CreditCard 
+} from 'lucide-react';
 
 const StoreManagement = () => {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeModal, setActiveModal] = useState(null); // { id, name }
+  const [activationData, setActivationData] = useState({ plan: '1month', months: 1 });
 
   const fetchStores = async () => {
     try {
@@ -29,17 +35,15 @@ const StoreManagement = () => {
     fetchStores();
   };
 
-  const activatePlan = async (id) => {
-    const plan = prompt('Enter plan name (1month, 6month, 1year):', '1month');
-    const months = parseInt(prompt('Enter duration in months:', '1'));
-    if (!plan || isNaN(months)) return;
-
+  const handleActivate = async () => {
+    if (!activeModal) return;
     const token = localStorage.getItem('token');
-    await fetch(`http://localhost:5000/api/admin/stores/${id}/activate`, {
+    await fetch(`http://localhost:5000/api/admin/stores/${activeModal.id}/activate`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ plan, durationMonths: months })
+      body: JSON.stringify({ plan: activationData.plan, durationMonths: activationData.months })
     });
+    setActiveModal(null);
     fetchStores();
   };
 
@@ -51,13 +55,15 @@ const StoreManagement = () => {
           <h3 className="text-3xl font-black text-white tracking-tight leading-tight">Store Management</h3>
           <p className="text-slate-400 text-sm">Control ecosystem access and manage membership statuses.</p>
         </div>
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search stores..." 
-            className="input-field pl-12 py-3 bg-white/5 border-white/10 w-64 lg:w-80 rounded-2xl"
-          />
+        <div className="flex items-center gap-4">
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search stores..." 
+              className="input-field pl-12 py-3 bg-white/5 border-white/10 w-64 lg:w-80 rounded-2xl"
+            />
+          </div>
         </div>
       </div>
 
@@ -101,20 +107,26 @@ const StoreManagement = () => {
                         </div>
                         <div>
                           <span className="text-xs font-black text-white uppercase tracking-widest">{store.plan}</span>
-                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Exp: {new Date(store.planExpiresAt).toLocaleDateString()}</p>
+                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">
+                            {store.planExpiresAt ? `Exp: ${new Date(store.planExpiresAt).toLocaleDateString()}` : 'No Expiry Set'}
+                          </p>
                         </div>
                       </div>
                     </td>
                     <td className="px-8 py-8">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${store.status === 'active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
-                        {store.status === 'active' ? <CheckCircle size={10} /> : <XCircle size={10} />}
-                        {store.status}
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                        store.status === 'active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
+                        store.status === 'pending_approval' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 
+                        'bg-red-500/10 text-red-400 border-red-500/20'
+                      }`}>
+                        {store.status === 'active' ? <CheckCircle size={10} /> : <AlertCircle size={10} />}
+                        {store.status.replace('_', ' ')}
                       </span>
                     </td>
                     <td className="px-8 py-8">
                       <div className="flex items-center justify-end gap-3">
                         <button 
-                          onClick={() => activatePlan(store._id)} 
+                          onClick={() => setActiveModal({ id: store._id, name: store.name })} 
                           className="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
                         >
                           Modify Plan
@@ -124,9 +136,6 @@ const StoreManagement = () => {
                           className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95 ${store.status === 'active' ? 'border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white' : 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white'}`}
                         >
                           {store.status === 'active' ? 'Ban Store' : 'Reinstate'}
-                        </button>
-                        <button className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-slate-500 hover:text-white transition-all">
-                          <MoreVertical size={16} />
                         </button>
                       </div>
                     </td>
@@ -138,24 +147,61 @@ const StoreManagement = () => {
         )}
       </div>
 
-      {/* Global Controls */}
-      <div className="glass p-10 rounded-[32px] border-white/5 flex flex-wrap items-center justify-between gap-8">
-        <div className="flex items-center gap-5">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20 shadow-lg">
-            <Shield size={28} />
-          </div>
-          <div>
-            <h4 className="text-xl font-bold text-white tracking-tight leading-tight">Ecosystem Security</h4>
-            <p className="text-slate-400 text-sm">Monitor system integrity and store health metrics.</p>
+      {/* Activation Modal Overlay */}
+      {activeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+          <div className="glass p-10 rounded-[40px] max-w-md w-full border border-white/10 shadow-2xl space-y-8">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                <CreditCard size={24} />
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-white tracking-tight">Activate Membership</h4>
+                <p className="text-slate-500 text-xs">Modifying plan for: <strong>{activeModal.name}</strong></p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Select Plan</label>
+                <select 
+                  className="input-field h-12"
+                  value={activationData.plan}
+                  onChange={(e) => setActivationData({...activationData, plan: e.target.value})}
+                >
+                  <option value="1month">1 Month - PKR 999</option>
+                  <option value="6month">6 Months - PKR 4,999</option>
+                  <option value="1year">1 Year - PKR 8,999</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Duration (Months)</label>
+                <input 
+                  type="number" 
+                  className="input-field h-12" 
+                  value={activationData.months}
+                  onChange={(e) => setActivationData({...activationData, months: parseInt(e.target.value)})}
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setActiveModal(null)}
+                className="flex-1 py-4 rounded-2xl border border-white/5 text-slate-400 font-bold hover:bg-white/5 transition-all"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleActivate}
+                className="flex-1 py-4 rounded-2xl bg-indigo-500 text-white font-black shadow-xl shadow-indigo-500/20 hover:bg-indigo-600 transition-all"
+              >
+                Confirm Activation
+              </button>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <button className="btn-outline h-12 px-6 text-xs">Download Audit Log</button>
-          <button className="btn-primary h-12 px-6 text-xs">
-            <Settings size={14} /> Global Settings
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
