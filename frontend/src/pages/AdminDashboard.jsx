@@ -8,6 +8,7 @@ import {
 import StoreManagement from '../components/admin/StoreManagement';
 import BlacklistMonitor from '../components/admin/BlacklistMonitor';
 import AdminProfile from '../components/admin/AdminProfile';
+import InquiryInbox from '../components/admin/InquiryInbox';
 import Chat from '../components/Chat';
 import logo from '../assets/logo.png';
 
