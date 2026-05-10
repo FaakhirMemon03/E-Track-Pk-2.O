@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { KeyRound, Mail } from 'lucide-react';
+import { KeyRound, Mail, Shield, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -53,67 +53,78 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-dark)' }}>
-      <div className="glass premium-shadow animate-fade" style={{ width: '450px', padding: '40px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <div className="feature-icon" style={{ margin: '0 auto 20px auto', width: '60px', height: '60px', background: 'rgba(99,102,241,0.1)', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-slate-950">
+      <div className="glass p-8 md:p-12 rounded-[32px] w-full max-w-md animate-fade-in relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 blur-3xl rounded-full -mr-32 -mt-32"></div>
+        
+        <div className="text-center mb-10 relative z-10">
+          <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-indigo-400">
             <KeyRound size={32} />
           </div>
-          <h2>Store Password Recovery</h2>
-          <p style={{ color: 'var(--text-muted)' }}>Enter your email to receive a reset code.</p>
+          <h2 className="text-3xl font-black text-white mb-2">Recover Access</h2>
+          <p className="text-slate-400">Securely reset your store account password</p>
         </div>
 
         {msg.text && (
-          <div className={`alert alert-${msg.type}`}>
+          <div className={`p-4 rounded-xl mb-8 text-sm font-medium animate-fade-in flex items-start gap-3 relative z-10 ${msg.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+            {msg.type === 'success' ? <CheckCircle size={18} className="mt-0.5" /> : <Shield size={18} className="mt-0.5" />}
             {msg.text}
           </div>
         )}
 
         {step === 1 ? (
-          <form onSubmit={handleGetCode}>
-            <div style={{ marginBottom: '30px' }}>
-              <label>Store Email Address</label>
-              <div style={{ position: 'relative', marginTop: '8px' }}>
-                <Mail size={18} style={{ position: 'absolute', left: '12px', top: '14px', color: 'var(--text-muted)' }} />
+          <form onSubmit={handleGetCode} className="space-y-6 relative z-10">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Store Email Address</label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                 <input 
                   type="email" 
                   placeholder="Enter your store email" 
+                  className="input-field pl-12 h-14"
                   required 
-                  style={{ paddingLeft: '40px' }}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
-            <button className="btn-primary full-width">Send Reset Code</button>
-            <Link to="/login" style={{ display: 'block', textAlign: 'center', marginTop: '20px', color: 'var(--text-muted)', textDecoration: 'none' }}>Back to Login</Link>
+            <button className="btn-primary w-full h-14 rounded-2xl text-lg group">
+              Send Reset Code <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            </button>
+            <Link to="/login" className="flex items-center justify-center gap-2 text-slate-500 text-sm font-bold hover:text-white transition-colors mt-6">
+              <ArrowLeft size={14} /> Back to Login
+            </Link>
           </form>
         ) : (
-          <form onSubmit={handleReset}>
-            <div style={{ marginBottom: '20px' }}>
-              <label>Reset Code</label>
+          <form onSubmit={handleReset} className="space-y-6 relative z-10">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Reset Code</label>
               <input 
                 type="text" 
                 placeholder="Enter 6-digit code" 
+                className="input-field h-14 text-center tracking-[1em] font-mono font-black"
                 required 
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
               />
             </div>
             
-            <div style={{ marginBottom: '30px' }}>
-              <label>New Password</label>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">New Password</label>
               <input 
                 type="password" 
                 placeholder="Enter new password" 
+                className="input-field h-14"
                 required 
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
               />
             </div>
             
-            <button className="btn-primary full-width">Update Password</button>
-            <button type="button" onClick={() => setStep(1)} className="btn-outline full-width" style={{ marginTop: '10px' }}>Change Email</button>
+            <button className="btn-primary w-full h-14 rounded-2xl text-lg">Update Password</button>
+            <button type="button" onClick={() => setStep(1)} className="w-full text-slate-500 text-xs font-black uppercase tracking-widest hover:text-white transition-colors">
+              Wrong Email? Change It
+            </button>
           </form>
         )}
       </div>
