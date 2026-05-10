@@ -204,13 +204,11 @@ router.post('/my-customers', requireAuth('store'), async (req, res) => {
 });
 
 // Bulk Upload My Customers
-router.post('/my-customers/bulk', requireAuth('store'), upload.single('file'), async (req, res) => {
+// Bulk Upload Handler Logic
+const bulkUploadCustomers = async (req, res) => {
   try {
     if (!req.file) {
-      console.log('Bulk Upload Error: No file received. Req Body:', req.body);
-      return res.status(400).json({ 
-        error: 'No file uploaded. Please ensure you are selecting a valid Excel or CSV file.' 
-      });
+      return res.status(400).json({ error: 'No file uploaded. Please select a valid Excel file.' });
     }
 
     let workbook;
@@ -218,12 +216,10 @@ router.post('/my-customers/bulk', requireAuth('store'), upload.single('file'), a
       const absolutePath = path.resolve(req.file.path);
       workbook = xlsx.readFile(absolutePath);
     } catch (readError) {
-      return res.status(400).json({ error: 'Could not read Excel file. Please ensure it is a valid .xlsx or .csv file.' });
+      return res.status(400).json({ error: 'Could not read Excel file.' });
     }
 
     let sheetData = [];
-    
-    // Try each sheet until we find data
     for (const name of workbook.SheetNames) {
       const data = xlsx.utils.sheet_to_json(workbook.Sheets[name]);
       if (data.length > 0) {
@@ -249,24 +245,23 @@ router.post('/my-customers/bulk', requireAuth('store'), upload.single('file'), a
     }).filter(r => r.phone && r.phone.length >= 7);
 
     if (!records.length) {
-      const foundKeys = sheetData.length > 0 ? Object.keys(sheetData[0]).join(', ') : 'None (Empty Sheet)';
-      return res.status(400).json({ 
-        error: `Import Failed: No valid records with phone numbers found. Columns detected: [${foundKeys}]. Please ensure you have a "Phone" column.` 
-      });
+      const foundKeys = sheetData.length > 0 ? Object.keys(sheetData[0]).join(', ') : 'None';
+      return res.status(400).json({ error: `No valid records found. Found columns: [${foundKeys}]` });
     }
 
-    // Use bulkWrite for upsert or just insertMany with ordered false to skip duplicates
     try {
       await StoreCustomer.insertMany(records, { ordered: false }); 
     } catch (bulkError) {
-      // Ignore duplicate key errors (11000)
       if (bulkError.code !== 11000) throw bulkError;
     }
 
-    res.status(201).json({ message: `${records.length} customers processed. Duplicates were automatically skipped.` });
+    res.status(201).json({ message: `${records.length} customers processed successfully.` });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});
+};
+
+// Bulk Upload My Customers Route
+router.post('/my-customers/bulk', requireAuth('store'), upload.single('file'), bulkUploadCustomers);
 
 module.exports = router;
