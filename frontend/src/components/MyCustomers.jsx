@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, UserPlus, FileSpreadsheet, Search, Filter, Mail, Phone, MapPin, MoreVertical, Trash2, Upload, CheckCircle } from 'lucide-react';
+import { Users, UserPlus, FileSpreadsheet, Search, Filter, Mail, Phone, MapPin, MoreVertical, Trash2, Upload, CheckCircle, ShieldAlert } from 'lucide-react';
 
 const MyCustomers = () => {
   const [customers, setCustomers] = useState([]);
@@ -8,6 +8,9 @@ const MyCustomers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [selectedForReport, setSelectedForReport] = useState(null);
+  const [reportReason, setReportReason] = useState('');
   const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', email: '', address: '', notes: '', category: 'Regular' });
   const [bulkFile, setBulkFile] = useState(null);
   const [status, setStatus] = useState({ text: '', type: '' });
