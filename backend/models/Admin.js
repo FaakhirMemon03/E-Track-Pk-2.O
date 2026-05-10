@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const adminSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  name: { type: String, default: 'Master Admin' },
   profilePic: { type: String, default: '' },
   recoveryQuestion: { type: String, required: true },
   recoveryAnswer: { type: String, required: true },

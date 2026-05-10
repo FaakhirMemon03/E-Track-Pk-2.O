@@ -77,8 +77,9 @@ router.get('/customers', requireAuth('admin'), async (req, res) => {
 // Update Admin Profile
 router.put('/profile', requireAuth('admin'), async (req, res) => {
   try {
-    const { username, password, recoveryQuestion, recoveryAnswer } = req.body;
-    if (username) req.user.username = username;
+    const { name, email, password, recoveryQuestion, recoveryAnswer } = req.body;
+    if (name) req.user.name = name;
+    if (email) req.user.email = email;
     if (recoveryQuestion) req.user.recoveryQuestion = recoveryQuestion;
     if (recoveryAnswer) req.user.recoveryAnswer = recoveryAnswer;
     
@@ -88,7 +89,7 @@ router.put('/profile', requireAuth('admin'), async (req, res) => {
     }
 
     await req.user.save();
-    res.json({ message: 'Admin profile updated' });
+    res.json({ message: 'Admin profile updated', admin: req.user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

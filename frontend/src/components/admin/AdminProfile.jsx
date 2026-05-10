@@ -3,6 +3,7 @@ import { Settings, Mail, Lock, ShieldCheck, HelpCircle, Save, Key } from 'lucide
 
 const AdminProfile = ({ admin, setAdmin }) => {
   const [formData, setFormData] = useState({ 
+    name: admin.name || 'Master Admin',
     email: admin.email, 
     password: '', 
     recoveryQuestion: admin.recoveryQuestion || '', 
@@ -61,6 +62,18 @@ const AdminProfile = ({ admin, setAdmin }) => {
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-2">
               <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                <Shield size={12} className="text-indigo-400" /> Administrative Name
+              </label>
+              <input 
+                type="text" 
+                className="input-field py-4"
+                placeholder="Master Admin"
+                value={formData.name} 
+                onChange={e => setFormData({...formData, name: e.target.value})} 
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                 <Mail size={12} /> Master Email
               </label>
               <input 
@@ -70,6 +83,9 @@ const AdminProfile = ({ admin, setAdmin }) => {
                 onChange={e => setFormData({...formData, email: e.target.value})} 
               />
             </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-2">
               <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2 text-indigo-400">
                 <Key size={12} /> Master Password
