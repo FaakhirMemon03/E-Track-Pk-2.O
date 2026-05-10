@@ -1,6 +1,7 @@
 import React from 'react';
 import { Shield, Zap, TrendingDown, MessageCircle, AlertCircle, PhoneOff, XCircle, DollarSign, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import logo from '../assets/logo.png';
 
 const LandingPage = () => {
   return (
@@ -161,9 +162,16 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <footer className="py-12 border-t border-white/5 text-center text-slate-500 text-sm">
-        <div className="container mx-auto px-6">
-          <p>&copy; 2026 E-Track PK. Built for Pakistani Entrepreneurs.</p>
+      <footer className="py-20 border-t border-white/5 bg-black/20">
+        <div className="container mx-auto px-6 text-center">
+          <div className="flex flex-col items-center gap-6 mb-8">
+            <img src={logo} alt="E-Track PK" className="h-12 w-auto grayscale hover:grayscale-0 transition-all duration-500" />
+            <div className="h-px w-12 bg-white/10"></div>
+          </div>
+          <p className="text-slate-500 text-sm font-medium tracking-tight">
+            &copy; 2026 E-Track PK. All rights reserved.<br/>
+            <span className="text-[10px] uppercase tracking-[0.2em] mt-2 block opacity-50">Built for Pakistani Entrepreneurs</span>
+          </p>
         </div>
       </footer>
     </div>
