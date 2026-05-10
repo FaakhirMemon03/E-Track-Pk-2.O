@@ -8,6 +8,7 @@ import {
 import CustomerLookup from '../components/CustomerLookup';
 import BlacklistReport from '../components/BlacklistReport';
 import Subscription from '../components/Subscription';
+import OrderStatus from '../components/OrderStatus';
 import Chat from '../components/Chat';
 import Profile from '../components/Profile';
 
@@ -138,6 +139,7 @@ const StoreDashboard = () => {
             <Route path="/"            element={<Overview stats={stats} user={user} />} />
             <Route path="lookup"       element={<CustomerLookup />} />
             <Route path="report"       element={<BlacklistReport />} />
+            <Route path="orders"       element={<OrderStatus />} />
             <Route path="subscription" element={<Subscription />} />
             <Route path="support"      element={<Chat user={user} role="store" />} />
             <Route path="profile"      element={<Profile user={user} setUser={setUser} />} />
