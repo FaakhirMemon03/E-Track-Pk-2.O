@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Store = require('../models/Store');
 const Admin = require('../models/Admin');
+const sendEmail = require('../utils/sendEmail');
 
 // --- Store Auth ---
 
@@ -115,7 +116,6 @@ router.post('/store/forgot-password', async (req, res) => {
     await store.save();
 
     // Send Email
-    const sendEmail = require('../utils/sendEmail');
     const message = `Your password reset code is: ${resetCode}\n\nThis code will expire in 1 hour.`;
 
     try {
@@ -131,6 +131,9 @@ router.post('/store/forgot-password', async (req, res) => {
       await store.save();
       return res.status(500).json({ error: 'Email could not be sent' });
     }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Store: Reset Password via Token
