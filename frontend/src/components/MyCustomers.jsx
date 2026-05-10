@@ -60,7 +60,10 @@ const MyCustomers = () => {
         setShowReportModal(false);
         setReportReason('');
       }
-    } catch (e) {
+      alert(e.response?.data?.error || 'Failed to report customer');
+    }
+  };
+
   const handleAddCustomer = async (e) => {
     e.preventDefault();
     try {
