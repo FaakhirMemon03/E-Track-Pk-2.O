@@ -206,9 +206,21 @@ router.post('/my-customers', requireAuth('store'), async (req, res) => {
 // Bulk Upload My Customers
 router.post('/my-customers/bulk', requireAuth('store'), upload.single('file'), async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    if (!req.file) {
+      console.log('Bulk Upload Error: No file received. Req Body:', req.body);
+      return res.status(400).json({ 
+        error: 'No file uploaded. Please ensure you are selecting a valid Excel or CSV file.' 
+      });
+    }
 
-    const workbook = xlsx.readFile(req.file.path);
+    let workbook;
+    try {
+      const absolutePath = path.resolve(req.file.path);
+      workbook = xlsx.readFile(absolutePath);
+    } catch (readError) {
+      return res.status(400).json({ error: 'Could not read Excel file. Please ensure it is a valid .xlsx or .csv file.' });
+    }
+
     let sheetData = [];
     
     // Try each sheet until we find data
