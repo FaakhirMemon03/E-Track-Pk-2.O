@@ -43,8 +43,9 @@ router.put('/stores/:id/activate', requireAuth('admin'), async (req, res) => {
     if (!storeToUpdate) return res.status(404).json({ error: 'Store not found' });
 
     let expiresAt = new Date();
-    // If store already has an active plan that hasn't expired, extend it
-    if (storeToUpdate.planExpiresAt && storeToUpdate.planExpiresAt > new Date()) {
+    // If store already has an active PAID plan that hasn't expired, extend it.
+    // If they are on 'trial', we start the new plan from NOW (trial ends immediately).
+    if (storeToUpdate.plan !== 'trial' && storeToUpdate.planExpiresAt && storeToUpdate.planExpiresAt > new Date()) {
       expiresAt = new Date(storeToUpdate.planExpiresAt);
     }
     
