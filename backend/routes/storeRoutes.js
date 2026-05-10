@@ -211,16 +211,26 @@ router.post('/my-customers/bulk', requireAuth('store'), upload.single('file'), a
     const workbook = xlsx.readFile(req.file.path);
     const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
 
-    const records = sheetData.map(row => ({
-      name: row.name || row.Name || row.NAME || 'Unknown',
-      phone: row.phone || row.Phone || row.PHONE || '',
-      email: row.email || row.Email || row.EMAIL || '',
-      address: row.address || row.Address || row.ADDRESS || '',
-      notes: row.notes || row.Notes || '',
-      storeId: req.user._id
-    })).filter(r => r.phone);
+    const records = sheetData.map(row => {
+      // Find keys regardless of case or spaces
+      const findVal = (possibleKeys) => {
+        const key = Object.keys(row).find(k => possibleKeys.includes(k.toLowerCase().trim()));
+        return key ? String(row[key]).trim() : '';
+      };
 
-    if (!records.length) return res.status(400).json({ error: 'No valid records with phone numbers found' });
+      return {
+        name: findVal(['name', 'full name', 'customer name', 'username']) || 'Unknown',
+        phone: findVal(['phone', 'mobile', 'contact', 'phone number', 'mobile number']),
+        email: findVal(['email', 'email address', 'mail']),
+        address: findVal(['address', 'full address', 'location', 'city']),
+        notes: findVal(['notes', 'reason', 'description', 'remark']),
+        storeId: req.user._id
+      };
+    }).filter(r => r.phone);
+
+    if (!records.length) return res.status(400).json({ 
+      error: 'No valid records found. Please ensure your Excel has columns like Name, Phone, and Email.' 
+    });
 
     // Use bulkWrite for upsert or just insertMany
     await StoreCustomer.insertMany(records, { ordered: false }); 
