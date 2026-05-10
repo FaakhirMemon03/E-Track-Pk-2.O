@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import { Send, MessageCircle, User, Clock } from 'lucide-react';
 import logo from '../assets/logo.png';
+import API_URL, { getApiUrl } from '../api';
 
 const Chat = ({ user, role }) => {
   const [messages, setMessages] = useState([]);
@@ -10,14 +11,14 @@ const Chat = ({ user, role }) => {
   const chatEndRef = useRef();
 
   useEffect(() => {
-    socketRef.current = io('http://localhost:5000');
+    socketRef.current = io(API_URL);
     
     const roomId = role === 'store' ? user.id : user.currentChatStoreId;
     socketRef.current.emit('join', roomId);
 
     const fetchHistory = async () => {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/chat/${roomId}`, {
+      const res = await fetch(getApiUrl(`/api/chat/${roomId}`), {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -54,7 +55,7 @@ const Chat = ({ user, role }) => {
     socketRef.current.emit('sendMessage', msgData);
     
     const token = localStorage.getItem('token');
-    await fetch('http://localhost:5000/api/chat', {
+    await fetch(getApiUrl('/api/chat'), {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
