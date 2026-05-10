@@ -359,5 +359,3 @@ const ChatList = ({ onSelectStore }) => {
 };
 
 export default AdminDashboard;
-
-export default AdminDashboard;
