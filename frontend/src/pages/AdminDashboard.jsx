@@ -129,6 +129,8 @@ const AdminDashboard = () => {
               <Route path="/" element={<AdminOverview />} />
               <Route path="stores" element={<StoreManagement />} />
               <Route path="monitor" element={<BlacklistMonitor />} />
+              <Route path="messages" element={<InquiryInbox />} />
+              <Route path="profile" element={<AdminProfile />} />
               <Route path="chats" element={<ChatList onSelectStore={(id) => navigate(`/admin/chats/${id}`)} />} />
               <Route path="chats/:storeId" element={<Chat user={{ ...admin, currentChatStoreId: window.location.pathname.split('/').pop() }} role="admin" />} />
               <Route path="settings" element={<AdminProfile admin={admin} setAdmin={setAdmin} />} />
