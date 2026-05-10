@@ -25,10 +25,18 @@ router.get('/:storeId', requireAuth(), async (req, res) => {
   }
 });
 
-// Post a new message (logic is also handled by Socket.io, but this is for persistence)
+// Post a new message
 router.post('/', requireAuth(), async (req, res) => {
   try {
-    const { receiverId, receiverModel, text } = req.body;
+    let { receiverId, receiverModel, text } = req.body;
+    
+    // If sending to Admin, find the first admin and use their ID
+    if (receiverModel === 'Admin') {
+      const Admin = require('../models/Admin');
+      const admin = await Admin.findOne();
+      if (admin) receiverId = admin._id;
+    }
+
     const message = new Message({
       senderId: req.user._id,
       senderModel: req.role === 'admin' ? 'Admin' : 'Store',
