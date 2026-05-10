@@ -14,12 +14,26 @@ const CustomerLookup = () => {
     setMsg({ text: '', type: '' });
     try {
       const token = localStorage.getItem('token');
+      
+      // Fetch Fraud Reports
       const res = await fetch(`http://localhost:5000/api/store/lookup?phone=${query.phone}&email=${query.email}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
+      
+      // Fetch Delivery History (if phone is provided)
+      let deliveryData = { delivered: 0, returned: 0 };
+      if (query.phone) {
+        try {
+          const dRes = await fetch(`http://localhost:5000/api/store/check-delivery/${query.phone}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          deliveryData = await dRes.json();
+        } catch (e) {}
+      }
+
       if (res.ok) {
-        setResult(data);
+        setResult({ ...data, delivery: deliveryData });
       } else {
         setMsg({ text: data.error || 'Lookup failed', type: 'error' });
       }
@@ -113,6 +127,27 @@ const CustomerLookup = () => {
                   ? 'The system has not identified any negative patterns for this customer. Proceed with confidence.'
                   : `Our database has flagged ${result.reports.length} historical incident${result.reports.length > 1 ? 's' : ''} with this customer.`}
               </p>
+            </div>
+
+            {/* Delivery Trust Metrics */}
+            <div className="grid grid-cols-2 gap-6">
+              <div className="glass p-8 rounded-[32px] border-emerald-500/20 text-center relative overflow-hidden group hover:bg-emerald-500/5 transition-all">
+                <div className="relative z-10">
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-3">Successful Deliveries</span>
+                  <h4 className="text-4xl font-black text-emerald-400 tracking-tighter">{result.delivery?.delivered || 0}</h4>
+                  <p className="text-[10px] text-emerald-500/60 font-bold uppercase tracking-widest mt-2">Network Verification</p>
+                </div>
+                <CheckCircle className="absolute -right-4 -bottom-4 text-emerald-500/5 group-hover:text-emerald-500/10 transition-colors" size={80} />
+              </div>
+
+              <div className="glass p-8 rounded-[32px] border-red-500/20 text-center relative overflow-hidden group hover:bg-red-500/5 transition-all">
+                <div className="relative z-10">
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-3">Returned Orders</span>
+                  <h4 className="text-4xl font-black text-red-400 tracking-tighter">{result.delivery?.returned || 0}</h4>
+                  <p className="text-[10px] text-red-500/60 font-bold uppercase tracking-widest mt-2">Delivery Failures</p>
+                </div>
+                <XCircle className="absolute -right-4 -bottom-4 text-red-500/5 group-hover:text-red-500/10 transition-colors" size={80} />
+              </div>
             </div>
 
             {result.reports.length > 0 && (
