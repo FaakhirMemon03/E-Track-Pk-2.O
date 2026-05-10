@@ -23,8 +23,8 @@ const LandingPage = () => {
         <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.1),transparent_50%)] pointer-events-none"></div>
         <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10">
           <div className="animate-fade-up">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold tracking-wider mb-8">
-              TRUSTED BY 500+ PAKISTANI STORES
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold tracking-wider mb-8 uppercase">
+              <Users size={14} /> Trusted by {stats.totalStores}+ Pakistani Stores
             </div>
             <h1 className="text-5xl lg:text-7xl font-black leading-tight mb-8">
               Stop Losing Money on <br/>
@@ -58,8 +58,8 @@ const LandingPage = () => {
                 <div className="grid grid-cols-3 gap-4">
                   {[
                     { label: "Secured", val: "98%", color: "indigo" },
-                    { label: "Blocked", val: "1.2k", color: "red" },
-                    { label: "Saved", val: "450k", color: "emerald" }
+                    { label: "Blocked", val: stats.totalReports > 1000 ? `${(stats.totalReports/1000).toFixed(1)}k` : stats.totalReports, color: "red" },
+                    { label: "Saved", val: stats.totalReports > 0 ? `${(stats.totalReports * 350 / 1000).toFixed(0)}k` : "0", color: "emerald" }
                   ].map((s, i) => (
                     <div key={i} className="p-4 rounded-2xl bg-white/2 border border-white/5 space-y-2">
                       <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{s.label}</div>
@@ -75,11 +75,13 @@ const LandingPage = () => {
                   </div>
                   <div className="flex items-center gap-4 relative z-10">
                     <div className="w-12 h-12 rounded-xl bg-indigo-500 flex items-center justify-center text-white font-black shadow-lg shadow-indigo-500/20">
-                      FM
+                      {topStore.name?.charAt(0)}
                     </div>
                     <div>
-                      <h4 className="text-sm font-black text-white">Faakhir Memon (Top Protector)</h4>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Oldest Store • 540+ Reports</p>
+                      <h4 className="text-sm font-black text-white">{topStore.name} (Top Protector)</h4>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+                        Joined {new Date(topStore.joined).toLocaleDateString()} • {topStore.count}+ Reports
+                      </p>
                     </div>
                     <div className="ml-auto text-right">
                       <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20">
