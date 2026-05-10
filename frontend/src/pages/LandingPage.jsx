@@ -29,16 +29,65 @@ const LandingPage = () => {
           </div>
           <div className="relative animate-fade-in group">
             <div className="absolute -inset-4 bg-indigo-500/10 blur-3xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
-            <div className="glass p-4 rounded-3xl relative overflow-hidden">
-              <img src="/hero.png" alt="E-Track Dashboard" className="w-full rounded-2xl shadow-2xl" onError={(e) => e.target.style.display='none'} />
-              <div className="p-8 space-y-6">
-                <div className="h-6 w-1/3 bg-white/5 rounded-lg animate-pulse"></div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="h-20 bg-white/5 rounded-xl animate-pulse"></div>
-                  <div className="h-20 bg-white/5 rounded-xl animate-pulse"></div>
-                  <div className="h-20 bg-white/5 rounded-xl animate-pulse"></div>
+            <div className="glass p-4 rounded-3xl relative overflow-hidden ring-1 ring-white/10 shadow-2xl bg-linear-to-br from-white/5 to-transparent">
+              <div className="p-8 space-y-8">
+                {/* Header Mock */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                      <Shield size={16} />
+                    </div>
+                    <div className="h-4 w-32 bg-white/10 rounded-full"></div>
+                  </div>
+                  <div className="w-12 h-6 bg-white/5 rounded-full"></div>
                 </div>
-                <div className="h-40 w-full bg-white/5 rounded-xl animate-pulse"></div>
+
+                {/* Stats Mock */}
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { label: "Secured", val: "98%", color: "indigo" },
+                    { label: "Blocked", val: "1.2k", color: "red" },
+                    { label: "Saved", val: "450k", color: "emerald" }
+                  ].map((s, i) => (
+                    <div key={i} className="p-4 rounded-2xl bg-white/2 border border-white/5 space-y-2">
+                      <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{s.label}</div>
+                      <div className={`text-xl font-black text-${s.color}-400`}>{s.val}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Top Protector Section */}
+                <div className="p-6 rounded-[24px] bg-indigo-500/5 border border-indigo-500/10 relative overflow-hidden group/card">
+                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover/card:opacity-20 transition-opacity">
+                    <TrendingDown size={40} />
+                  </div>
+                  <div className="flex items-center gap-4 relative z-10">
+                    <div className="w-12 h-12 rounded-xl bg-indigo-500 flex items-center justify-center text-white font-black shadow-lg shadow-indigo-500/20">
+                      FM
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black text-white">Faakhir Memon (Top Protector)</h4>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Oldest Store • 540+ Reports</p>
+                    </div>
+                    <div className="ml-auto text-right">
+                      <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20">
+                        Top Contributor
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recent Activity Mock */}
+                <div className="space-y-3">
+                  <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest px-1">Live Fraud Mitigation</div>
+                  {[1, 2].map((_, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 bg-white/2 border border-white/5 rounded-xl opacity-50">
+                      <div className="w-6 h-6 rounded-md bg-red-500/20 border border-red-500/20"></div>
+                      <div className="h-2 w-24 bg-white/5 rounded-full"></div>
+                      <div className="ml-auto h-2 w-12 bg-white/5 rounded-full"></div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
