@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Search, ShieldAlert, CreditCard, MessageSquare, User, LogOut, TrendingUp, Activity, Shield } from 'lucide-react';
+import { 
+  LayoutDashboard, Search, ShieldAlert, CreditCard, 
+  MessageSquare, User, LogOut, TrendingUp, Activity, 
+  Shield, Bell, ChevronRight, Clock, ExternalLink
+} from 'lucide-react';
 import CustomerLookup from '../components/CustomerLookup';
 import BlacklistReport from '../components/BlacklistReport';
 import Subscription from '../components/Subscription';
@@ -8,25 +12,29 @@ import Chat from '../components/Chat';
 import Profile from '../components/Profile';
 
 const navItems = [
-  { icon: <LayoutDashboard size={18} />, label: 'Overview',         path: '/dashboard' },
-  { icon: <Search size={18} />,          label: 'Customer Lookup',  path: '/dashboard/lookup' },
-  { icon: <ShieldAlert size={18} />,     label: 'Blacklist Report', path: '/dashboard/report' },
-  { icon: <CreditCard size={18} />,      label: 'Subscription',     path: '/dashboard/subscription' },
-  { icon: <MessageSquare size={18} />,   label: 'Live Support',     path: '/dashboard/support' },
-  { icon: <User size={18} />,            label: 'Profile Settings', path: '/dashboard/profile' },
+  { icon: <LayoutDashboard size={20} />, label: 'Dashboard',      path: '/dashboard' },
+  { icon: <Search size={20} />,          label: 'Risk Lookup',    path: '/dashboard/lookup' },
+  { icon: <ShieldAlert size={20} />,     label: 'Report Fraud',   path: '/dashboard/report' },
+  { icon: <CreditCard size={20} />,      label: 'Subscription',   path: '/dashboard/subscription' },
+  { icon: <MessageSquare size={20} />,   label: 'Live Support',   path: '/dashboard/support' },
+  { icon: <User size={20} />,            label: 'Profile',        path: '/dashboard/profile' },
 ];
 
 const StoreDashboard = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || {});
   const [stats, setStats] = useState({ totalSearches: 0, blacklistedByYou: 0, systemWideReports: 0, recentActivity: [] });
   const [timeLeft, setTimeLeft] = useState('');
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const timer = setInterval(() => {
       const diff = new Date(user.planExpiresAt) - new Date();
-      if (diff <= 0) { clearInterval(timer); handleLogout(); return; }
+      if (diff <= 0) { 
+        clearInterval(timer); 
+        handleLogout(); 
+        return; 
+      }
       const d = Math.floor(diff / 86400000);
       const h = Math.floor((diff % 86400000) / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
@@ -36,10 +44,13 @@ const StoreDashboard = () => {
 
     fetch('http://localhost:5000/api/store/stats', {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    }).then(r => r.json()).then(d => { if (d && !d.error) setStats(d); }).catch(() => {});
+    })
+    .then(r => r.json())
+    .then(d => { if (d && !d.error) setStats(d); })
+    .catch(() => {});
 
     return () => clearInterval(timer);
-  }, []);
+  }, [user.planExpiresAt]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -47,26 +58,18 @@ const StoreDashboard = () => {
     navigate('/login');
   };
 
+  const activeLabel = navItems.find(item => item.path === location.pathname)?.label || 'Dashboard';
   const avatarSrc = user.profilePic ? `http://localhost:5000${user.profilePic}` : null;
 
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
-      <aside className="sidebar glass">
-        <div className="sidebar-brand">
-          <div className="sidebar-logo"><Shield size={20} /></div>
-          <span>E-Track PK</span>
-        </div>
-
-        {/* User info */}
-        <div className="sidebar-user">
-          <div className="sidebar-avatar">
-            {avatarSrc ? <img src={avatarSrc} alt="avatar" /> : user.name?.charAt(0).toUpperCase()}
+      <aside className="sidebar">
+        <div className="sidebar-logo-container">
+          <div className="logo-icon">
+            <Shield size={22} fill="white" />
           </div>
-          <div className="sidebar-user-info">
-            <p className="sidebar-username">{user.name}</p>
-            <p className="sidebar-email">{user.email}</p>
-          </div>
+          <span className="logo-text">E-Track PK</span>
         </div>
 
         <nav className="sidebar-nav">
@@ -74,7 +77,7 @@ const StoreDashboard = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`nav-item ${location.pathname === item.path ? 'nav-active' : ''}`}
+              className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
             >
               {item.icon}
               <span>{item.label}</span>
@@ -82,84 +85,163 @@ const StoreDashboard = () => {
           ))}
         </nav>
 
-        <button onClick={handleLogout} className="sidebar-logout">
-          <LogOut size={18} /> <span>Logout</span>
-        </button>
+        <div className="sidebar-footer">
+          <div className="user-profile-compact">
+            <div className="compact-avatar">
+              {avatarSrc ? <img src={avatarSrc} alt="avatar" /> : user.name?.charAt(0).toUpperCase()}
+            </div>
+            <div className="compact-info">
+              <p className="compact-name">{user.name}</p>
+              <p className="compact-role">{user.plan} Store</p>
+            </div>
+          </div>
+          <button onClick={handleLogout} className="logout-btn">
+            <LogOut size={18} /> <span>Logout</span>
+          </button>
+        </div>
       </aside>
 
-      {/* Main */}
-      <main className="dash-main">
-        {/* Header */}
-        <div className="dash-header glass">
-          <div>
-            <p className="dash-greeting">Welcome back,</p>
-            <h2 className="dash-username">{user.name}</h2>
-            <span className="plan-tag">{user.plan?.toUpperCase()} PLAN</span>
+      {/* Main Content */}
+      <div className="main-wrapper">
+        <header className="top-bar">
+          <div className="page-info">
+            <h1 className="animate-fade">{activeLabel}</h1>
           </div>
-          <div className="dash-timer">
-            <span className="timer-label">Session Expires In</span>
-            <span className="timer-value">{timeLeft}</span>
-          </div>
-        </div>
 
-        {/* Content */}
-        <div className="dash-content">
+          <div className="top-bar-actions">
+            <div className="session-timer glass">
+              <span className="timer-lbl"><Clock size={10} style={{marginRight: 4}} /> Plan Expires</span>
+              <span className="timer-val">{timeLeft}</span>
+            </div>
+            <button className="btn-outline" style={{padding: '10px', borderRadius: '12px'}}>
+              <Bell size={20} />
+            </button>
+          </div>
+        </header>
+
+        <main className="content-scroll">
           <Routes>
-            <Route path="/"            element={<Overview stats={stats} />} />
+            <Route path="/"            element={<Overview stats={stats} user={user} />} />
             <Route path="lookup"       element={<CustomerLookup />} />
             <Route path="report"       element={<BlacklistReport />} />
             <Route path="subscription" element={<Subscription />} />
             <Route path="support"      element={<Chat user={user} role="store" />} />
             <Route path="profile"      element={<Profile user={user} setUser={setUser} />} />
           </Routes>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };
 
-const Overview = ({ stats }) => (
+const Overview = ({ stats, user }) => (
   <div className="animate-fade">
-    <div className="stats-row">
-      <div className="stat-box glass">
-        <div className="stat-icon-wrap primary"><TrendingUp size={22} /></div>
-        <div><p className="stat-lbl">Total Searches</p><h3 className="stat-val">{stats.totalSearches}</h3></div>
+    <div className="section-card-header">
+      <h2 className="gradient-text">Welcome back, {user.name}</h2>
+      <p>Here's what's happening with your store protection today.</p>
+    </div>
+
+    <div className="stats-grid">
+      <div className="stat-card glass">
+        <div className="stat-card-info">
+          <span className="stat-card-lbl">Total Lookups</span>
+          <h3 className="stat-card-val">{stats.totalSearches}</h3>
+        </div>
+        <div className="stat-card-icon">
+          <Search size={24} />
+        </div>
       </div>
-      <div className="stat-box glass">
-        <div className="stat-icon-wrap danger"><ShieldAlert size={22} /></div>
-        <div><p className="stat-lbl">Blacklisted by You</p><h3 className="stat-val">{stats.blacklistedByYou}</h3></div>
+
+      <div className="stat-card glass danger">
+        <div className="stat-card-info">
+          <span className="stat-card-lbl">Personal Blacklist</span>
+          <h3 className="stat-card-val">{stats.blacklistedByYou}</h3>
+        </div>
+        <div className="stat-card-icon">
+          <ShieldAlert size={24} />
+        </div>
       </div>
-      <div className="stat-box glass">
-        <div className="stat-icon-wrap success"><Activity size={22} /></div>
-        <div><p className="stat-lbl">Network Reports</p><h3 className="stat-val">{stats.systemWideReports}</h3></div>
+
+      <div className="stat-card glass success">
+        <div className="stat-card-info">
+          <span className="stat-card-lbl">Network Intelligence</span>
+          <h3 className="stat-card-val">{stats.systemWideReports}</h3>
+        </div>
+        <div className="stat-card-icon">
+          <Activity size={24} />
+        </div>
       </div>
     </div>
 
-    <div className="activity-box glass">
-      <div className="activity-head">
-        <Activity size={18} /><h3>Recent Platform Activity</h3>
+    <div className="data-box glass-heavy">
+      <div className="data-box-header">
+        <div className="data-box-title">
+          <Activity size={20} className="icon-primary" />
+          <span>Recent Network Activity</span>
+        </div>
+        <Link to="/dashboard/lookup" className="badge" style={{textDecoration: 'none'}}>
+          Verify Customer <ChevronRight size={14} />
+        </Link>
       </div>
+      
       {stats.recentActivity?.length > 0 ? (
-        <table className="act-table">
-          <thead>
-            <tr><th>Store</th><th>Phone</th><th>Reason</th><th>Date</th></tr>
-          </thead>
-          <tbody>
-            {stats.recentActivity.map((a, i) => (
-              <tr key={i}>
-                <td><span className="store-chip">{a.reportedBy?.name || 'Unknown'}</span></td>
-                <td><span className="phone-danger">{a.phone?.slice(0,4)}XXXXXXX</span></td>
-                <td>{a.reason}</td>
-                <td>{new Date(a.createdAt).toLocaleDateString('en-PK')}</td>
+        <div style={{overflowX: 'auto'}}>
+          <table className="premium-table">
+            <thead>
+              <tr>
+                <th>Origin Store</th>
+                <th>Target Phone</th>
+                <th>Reason for Report</th>
+                <th>Timestamp</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {stats.recentActivity.map((a, i) => (
+                <tr key={i}>
+                  <td>
+                    <div style={{display: 'flex', alignItems: 'center', gap: 10}}>
+                      <div className="compact-avatar" style={{width: 28, height: 28, fontSize: '0.7rem'}}>
+                        {a.reportedBy?.name?.charAt(0) || 'U'}
+                      </div>
+                      <span style={{fontWeight: 600}}>{a.reportedBy?.name || 'Anonymous'}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className="phone-mask">{a.phone?.slice(0,4)}XXXXXXX</span>
+                  </td>
+                  <td>
+                    <span className="status-chip reported">{a.reason}</span>
+                  </td>
+                  <td>
+                    <span style={{color: 'var(--text-dim)', fontSize: '0.85rem'}}>
+                      {new Date(a.createdAt).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
-        <div className="act-empty"><Shield size={36} /><p>No recent activity yet.</p></div>
+        <div className="act-empty">
+          <Shield size={48} style={{opacity: 0.2, marginBottom: 16}} />
+          <p>No suspicious activity detected in the network recently.</p>
+          <p style={{fontSize: '0.85rem', color: 'var(--text-dim)'}}>Your store is currently safe under our protection.</p>
+        </div>
       )}
+    </div>
+
+    <div className="section-card glass" style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '30px 40px'}}>
+      <div>
+        <h3 style={{fontSize: '1.2rem', marginBottom: 4}}>Need deeper protection?</h3>
+        <p style={{color: 'var(--text-muted)', fontSize: '0.9rem'}}>Upgrade your plan to unlock automated API integration and real-time alerts.</p>
+      </div>
+      <Link to="/dashboard/subscription" className="btn-primary">
+        View Plans <ExternalLink size={18} />
+      </Link>
     </div>
   </div>
 );
 
 export default StoreDashboard;
+
