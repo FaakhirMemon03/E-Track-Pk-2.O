@@ -40,4 +40,20 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+const Contact = require('../models/Contact');
+
+// ... existing routes ...
+
+// Submit Contact Form
+router.post('/contact', async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+    const contact = new Contact({ name, email, message });
+    await contact.save();
+    res.status(201).json({ message: 'Message sent successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
