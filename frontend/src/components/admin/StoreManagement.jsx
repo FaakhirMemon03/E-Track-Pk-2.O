@@ -131,47 +131,56 @@ const StoreManagement = () => {
                         {store.status.replace('_', ' ')}
                       </span>
                     </td>
-                    <td className="px-8 py-8">
-                      <div className="flex items-center justify-end gap-3">
-                        <button 
-                          onClick={() => setActiveModal({ id: store._id, name: store.name })} 
-                          className="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
-                        >
-                          Modify Plan
-                        </button>
-                        <button 
-                          onClick={() => updateStatus(store._id, store.status === 'active' ? 'banned' : 'active')} 
-                          className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95 ${store.status === 'active' ? 'border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white' : 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white'}`}
-                        >
-                          {store.status === 'active' ? 'Ban Store' : 'Reinstate'}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
       {/* Activation Modal Overlay */}
       {activeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-          <div className="glass p-10 rounded-[40px] max-w-md w-full border border-white/10 shadow-2xl space-y-8">
+          <div className="glass p-10 rounded-[40px] max-w-xl w-full border border-white/10 shadow-2xl space-y-8 overflow-y-auto max-h-[90vh] custom-scrollbar">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
                 <CreditCard size={24} />
               </div>
               <div>
                 <h4 className="text-xl font-bold text-white tracking-tight">Activate Membership</h4>
-                <p className="text-slate-500 text-xs">Modifying plan for: <strong>{activeModal.name}</strong></p>
+                <p className="text-slate-500 text-xs">Reviewing verification for: <strong>{activeModal.name}</strong></p>
               </div>
             </div>
 
+            {/* Payment Verification Section */}
+            {(activeModal.paymentTransactionId || activeModal.paymentScreenshot) && (
+              <div className="p-6 bg-indigo-500/5 rounded-[24px] border border-indigo-500/10 space-y-4">
+                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Verification Details</p>
+                {activeModal.paymentTransactionId && (
+                  <div className="flex justify-between items-center bg-black/20 p-3 rounded-xl border border-white/5">
+                    <span className="text-xs text-slate-400">Transaction ID</span>
+                    <span className="text-xs font-black text-white">{activeModal.paymentTransactionId}</span>
+                  </div>
+                )}
+                {activeModal.paymentScreenshot && (
+                  <div className="space-y-3">
+                    <p className="text-xs text-slate-400">Payment Screenshot</p>
+                    <a 
+                      href={`http://localhost:5000${activeModal.paymentScreenshot}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block group relative rounded-xl overflow-hidden border border-white/10"
+                    >
+                      <img 
+                        src={`http://localhost:5000${activeModal.paymentScreenshot}`} 
+                        alt="Proof" 
+                        className="w-full h-40 object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-[10px] font-black text-white uppercase tracking-widest">View Full Image</span>
+                      </div>
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Select Plan</label>
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Assign Plan</label>
                 <select 
                   className="input-field h-12"
                   value={activationData.plan}
@@ -204,7 +213,7 @@ const StoreManagement = () => {
                 onClick={handleActivate}
                 className="flex-1 py-4 rounded-2xl bg-indigo-500 text-white font-black shadow-xl shadow-indigo-500/20 hover:bg-indigo-600 transition-all"
               >
-                Confirm Activation
+                Approve & Activate
               </button>
             </div>
           </div>
